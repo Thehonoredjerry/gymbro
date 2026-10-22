@@ -1,6 +1,6 @@
 // Settings (v1.3.11): which page each row lives on, and the index the search field reads.
 //
-// The root holds eleven rows in four groups plus the account card; each opens a page at
+// The root holds ten rows in four groups plus the account card; each opens a page at
 // /settings/<page>. Rare things hang one level further down (Workout → Fine-tuning). Titles here
 // are the English keys the pages render with t(), so a search hit can find its row on the page
 // by the same text and flash it (views/Settings.jsx). settings-pages.test.jsx renders every page
@@ -16,7 +16,6 @@ export const PAGES = {
   units: { title: 'Units & language', icon: 'ruler', tint: 'var(--teal)' },
   equipment: { title: 'Equipment', icon: 'kettlebell', tint: 'var(--indigo)' },
   look: { title: 'Look & Home', icon: 'palette', tint: 'var(--purple)' },
-  coach: { title: 'AI Coach', icon: 'sparkles', tint: 'var(--green)' },
   data: { title: 'Data & backup', icon: 'folder', tint: 'var(--blue)' },
   about: { title: 'About & updates', icon: 'info', tint: 'var(--grey)' },
   account: { title: 'Account', icon: 'personCircle', tint: 'var(--grey)' },
@@ -25,16 +24,14 @@ export const PAGES = {
 export const PAGE_IDS = Object.keys(PAGES)
 
 // The root, top to bottom. Whether a row shows is pageVisible's call.
-export const ROOT_GROUPS = [['workout', 'alerts', 'reminders'], ['plan', 'units', 'equipment'], ['look', 'coach'], ['data', 'about']]
+export const ROOT_GROUPS = [['workout', 'alerts', 'reminders'], ['plan', 'units', 'equipment'], ['look'], ['data', 'about']]
 
 /**
  * Whether a page exists for this device and profile. Reminders need a push server (signed in) or
- * the phone's own notifications; the Coach page is the phone's Coach setup (the web app's Coach
- * runs on the server, set up by its admin).
+ * the phone's own notifications.
  */
 export function pageVisible(page, ctx) {
   if (page === 'reminders') return !!(ctx.user || ctx.mobile)
-  if (page === 'coach') return !!ctx.mobile
   return page in PAGES
 }
 

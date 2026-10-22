@@ -35,10 +35,7 @@ Notes:
   called `eg` in `envoy-gateway-system` with an `https` listener; change both to match your
   cluster. The Gateway has to terminate TLS; this was tested with
   [Envoy Gateway](https://gateway.envoyproxy.io) and [cert-manager](https://cert-manager.io).
-- The images are the published `ghcr.io/duartesantos8/opengym-api` and `opengym-web`. The AI
-  Coach with an API key works on that same API image; the Claude and Codex sign-in providers
-  need the `coach` build target, which is not published — build it yourself (see
-  [AI_COACH.md](AI_COACH.md)).
+- The images are the published `ghcr.io/duartesantos8/opengym-api` and `opengym-web`.
 - The images are pinned to a release (`1.4.1`), the API and the web image always to the same
   one. To update, read the release notes, set the new version on both and apply again; pinning
   to `latest` instead means a restarted pod can come back on a version you never chose.

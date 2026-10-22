@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => {
   state.passkeyLogin = vi.fn(async () => ({ id: 'u1', name: 'andi' }))
   state.api = vi.fn(async path => (path === '/api/account/password' ? { set: false, setAt: null, passkeys: 1, name: 'andi', nameTaken: false } : {}))
   state.snapshot = () => ({
-    S: state.S, user: state.user, sync: state.sync, config: state.config, coachLocal: null,
+    S: state.S, user: state.user, sync: state.sync, config: state.config,
     update: vi.fn(), replaceState: vi.fn(), setUser: vi.fn(), pullState: vi.fn(), pushState: vi.fn(), resetDemo: vi.fn(),
     syncNow: vi.fn(), unsyncedChanges: () => ({ owed: false, count: 0 }), keptChanges: async () => state.kept,
     disconnectServer: vi.fn(), signOut: vi.fn(), signOutAll: vi.fn(), adoptProfile: vi.fn(),

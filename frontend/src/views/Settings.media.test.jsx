@@ -30,7 +30,7 @@ const mocks = vi.hoisted(() => {
   state.kept = []
   state.keptChanges = async () => state.kept
   state.snapshot = () => ({
-    S: state.S, user: state.user, config: state.config, sync: state.sync, coachLocal: null,
+    S: state.S, user: state.user, config: state.config, sync: state.sync,
     update: vi.fn(), replaceState: state.replaceState, setUser: vi.fn(), pullState: vi.fn(), pushState: state.pushState,
     signOut: vi.fn(), signOutAll: vi.fn(), resetDemo: vi.fn(), disconnectServer: vi.fn(),
     syncNow: vi.fn(), unsyncedChanges: () => ({ owed: false, count: 0 }), keptChanges: state.keptChanges,
@@ -57,7 +57,6 @@ vi.mock('../lib/api.js', () => ({
 vi.mock('../lib/push.js', () => ({ pushSupported: () => false, enablePush: vi.fn(), disablePush: vi.fn(), sendTestPush: vi.fn() }))
 vi.mock('../lib/wakelock.js', () => ({ wakeLockSupported: () => false }))
 vi.mock('../lib/mobile.js', () => ({ MOBILE: false, isAndroid: () => Promise.resolve(false), shareExport: vi.fn(), shareExportBlob: vi.fn(), syncReminder: vi.fn() }))
-vi.mock('../lib/coach-api.js', () => ({ forgetCoach: vi.fn(() => Promise.resolve()) }))
 vi.mock('./MobileOnboarding.jsx', () => ({ ConnectSheet: () => null }))
 vi.mock('../sheets.jsx', () => ({
   starterPlanSheet: vi.fn(), confirmSheet: (...a) => mocks.confirmSheet(...a), importFromApp: vi.fn(),

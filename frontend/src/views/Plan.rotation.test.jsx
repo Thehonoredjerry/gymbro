@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => {
   state.snapshot = () => ({
     S: state.S,
     update: mut => { const next = structuredClone(state.S); mut(next); state.S = next },
-    config: {}, user: null, coachLocal: { mode: 'off' },
+    config: {}, user: null,
   })
   return state
 })
@@ -31,7 +31,6 @@ vi.mock('../sheets.jsx', () => ({
 }))
 vi.mock('../lib/mobile.js', () => ({ MOBILE: false }))
 vi.mock('../lib/demo.js', () => ({ DEMO: false }))
-vi.mock('../lib/coach.js', () => ({ coachAvailable: () => false }))
 
 import Plan from './Plan.jsx'
 import { menuSheet, confirmSheet } from '../sheets.jsx'

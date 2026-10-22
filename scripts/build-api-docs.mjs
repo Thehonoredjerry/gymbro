@@ -133,8 +133,7 @@ const TAGS = {
   media: { title: 'Media', side: 'Photos &amp; videos of your exercises &amp; workouts' },
   // A tag missing from this map renders nowhere at all, silently, so every tag in the
   // spec needs a line here.
-  coach: { title: 'AI Coach', side: 'Plans, reviews, debriefs' },
-  admin: { title: 'Admin', side: 'Users, invites, audit log, Coach' }
+  admin: { title: 'Admin', side: 'Users, invites, audit log' }
 }
 
 // "Admin: list all users" → "List all users": the section heading and the ADMIN
@@ -633,7 +632,7 @@ ${schemaCards}
 
 const rel = path.relative(root, outPath)
 const summary = `${ops.length} endpoints, ${Object.keys(spec.components.schemas).length} schemas, ${(html.length / 1024).toFixed(1)} KB`
-// --check is what build-coach-assets.mjs has had all along, for the same reason: the page is
+// --check: the page is
 // generated and committed, so a spec change that forgets to regenerate it ships a reference
 // that describes the previous version of the API. It also catches the other direction: an
 // edit made to the page by hand, which the next regeneration would silently undo.

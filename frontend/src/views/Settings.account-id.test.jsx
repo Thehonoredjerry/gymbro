@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => {
   const state = { S: null, user: null, MOBILE: false }
   state.toast = vi.fn()
   state.snapshot = () => ({
-    S: state.S, user: state.user, coachLocal: null,
+    S: state.S, user: state.user,
     sync: { status: 'ok', offline: false, pending: false, auth: false, lastError: null, lastSynced: Date.now(), server: 'https://gym.example.com' },
     update: vi.fn(), replaceState: vi.fn(), setUser: vi.fn(), pullState: vi.fn(), pushState: vi.fn(), resetDemo: vi.fn(),
     syncNow: vi.fn(), unsyncedChanges: () => ({ owed: false, count: 0 }), keptChanges: async () => [],

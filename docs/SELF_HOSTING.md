@@ -246,8 +246,7 @@ server to ask and is unaffected.
 
 Until someone picks a language, it is worked out on each device and not saved with the profile:
 without `DEFAULT_LANG`, the same profile can show in German on one phone and in English on a
-laptop, and the Coach answers in whichever the app is showing. A scheduled review, which no app
-asks for, is written in `DEFAULT_LANG` when it is set.
+laptop.
 
 ### The activity log
 
@@ -349,7 +348,7 @@ to anyone; it is only a second name that points at the account, and the password
   so switching between the two does not get around the pause.
 - Only the owner (in Settings) and admins (the user list and the user's page in the admin
   dashboard) ever see the address. It is not written to the activity log (entries show it masked,
-  `a…@e…`) or the container log, is not part of what the Coach, the MCP server or plan sharing
+  `a…@e…`) or the container log, is not part of what the MCP server or plan sharing
   see, and is not in `/api/me`. It is stored in `db.json` as `email` on the user, lower-cased.
 - With `PASSWORD_LOGIN` off, the row and the field are hidden and the address is not used; it
   stays in `db.json` for when the flag comes back.
@@ -515,7 +514,7 @@ a link, which the server never fetches), and attach up to six photos or videos t
 workout — a progress photo, a form-check clip. Both kinds share one quota and one set of limits.
 The file is uploaded to this server and stored under
 `./data/uploads/<profile id>/`, named by its SHA-256. Only its owner can download it again — no
-admin route, no Coach and no shared plan reads it. It is on by default, with these limits, all
+admin route and no shared plan reads it. It is on by default, with these limits, all
 set in `.env`:
 
 | Variable | Default | Meaning |
@@ -588,17 +587,6 @@ Restored without them, every profile is intact, and an exercise whose file is go
 placeholder until one of its owner's devices — each keeps its own copy — uploads it again. When
 you move openGym to another server, copy the whole `data/`, `uploads/` included; each person can
 also carry their own through Settings → Data & backup → *Export with photos & videos* and import it there.
-
-If you enabled the AI Coach with the Codex provider, note what this archive deliberately does
-**not** contain: `./coach-auth`, where that provider keeps its refreshable sign-in. It is a
-sibling of `./data` rather than a folder inside it precisely so that a live credential does not
-end up in every backup you are told to make — an archive like this gets copied to laptops and
-cloud drives, and a refresh token keeps working wherever it lands. Nothing in `./coach-auth`
-needs backing up: if you lose it, sign the provider in again.
-
-API keys for the HTTPS providers (Anthropic, OpenAI, Gemini, a compatible endpoint) are the
-other way round: they are in `./data/coach.json`, encrypted with `./data/secret`, so they *are*
-in this archive — and unreadable without the secret next to them, like everything else in it.
 
 ## 7. Notifications
 

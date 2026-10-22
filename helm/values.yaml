@@ -132,8 +132,6 @@ api:
     MEDIA_UPLOADS_PER_HOUR: ""
     MEDIA_MIN_FREE_MB: ""
     VAPID_SUBJECT: ""        # e.g. mailto:you@example.com
-    COACH_DISABLED: ""       # "1" = Coach kill switch
-    COACH_JOB_TIMEOUT_MS: ""
   # Rendered into the Secret. Same rule: empty = left out.
   secretEnv:
     ADMIN_UIDS: ""           # comma-separated user ids from db.json
