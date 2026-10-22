@@ -54,17 +54,15 @@ function cachedDefaultLang() {
 /**
  * The language to show this copy in, on this device: its own `lang`, or for a copy that never
  * picked one, what autoLang says. Before the config is in, the default this device last saw
- * stands in for it; with none seen yet the copy's stored language is used unchanged.
+ * stands in for it; with none seen yet, the browser's language.
  */
 export function effectiveLang(S, config, navLangs = browserLangs()) {
   const own = (S && typeof S.lang === 'string' && S.lang) || 'en'
   if (!S || S.langAuto !== true) return own
   let cfg = config
-  if (!cfg) {
-    const seen = cachedDefaultLang()
-    if (seen === null) return own
-    cfg = { default_lang: seen }
-  }
+  // A device that never heard from a server (the phone app on its own, a guest, the demo) has no
+  // default to wait for: the browser's language at once, so a Thai phone opens in Thai.
+  if (!cfg) cfg = { default_lang: cachedDefaultLang() }
   return autoLang(S, cfg, navLangs) || own
 }
 

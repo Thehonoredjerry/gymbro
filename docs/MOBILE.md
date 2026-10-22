@@ -245,16 +245,17 @@ into both native projects — re-run it after every web-code change before build
 
 ## App icons & splash screens
 
-`frontend/resources/icon.svg` is the 1024×1024 source (the app's dumbbell glyph on the
+`frontend/resources/icon.svg` is the 1024×1024 source (the mango dumbbell on the
 app background). Generate all platform assets from it on a machine with the tooling:
 
 ```sh
 cd frontend
-npx @capacitor/assets generate --iconBackgroundColor '#0c0e12' --splashBackgroundColor '#0c0e12'
+npx @capacitor/assets generate --iconBackgroundColor '#15122a' --splashBackgroundColor '#15122a'
 ```
 
 (If the generator won't take the SVG directly, export it to `resources/icon.png` at
-1024×1024 first — any image tool can do it.)
+1024×1024 first — any image tool can do it. The generator also rewrites `public/manifest.json`
+and `AndroidManifest.xml`; keep only the icon and splash images it writes.)
 
 ## Distribution — deliberately no app stores
 

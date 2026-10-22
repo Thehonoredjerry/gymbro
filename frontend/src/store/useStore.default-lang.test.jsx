@@ -31,7 +31,7 @@ describe('instance default language', () => {
 
   it('a fresh copy is shown in DEFAULT_LANG once the config is in, and its state is left alone', async () => {
     useStore.setState({ S: freshState() })
-    expect(shown()).toBe('en')   // nothing to go on before the config
+    expect(shown()).toBe('en')   // the browser's English before the config
     const before = clone(useStore.getState().S)
 
     api.mockResolvedValueOnce({ invite_only: false, allow_guest: true, default_lang: 'pt-BR' })
@@ -51,6 +51,12 @@ describe('instance default language', () => {
     await useStore.getState().refreshConfig()
     useStore.setState({ config: null })
     expect(shown()).toBe('de')
+  })
+
+  it('a device that never reached a server follows the browser at once', () => {
+    nav(['th-TH', 'en'])
+    useStore.setState({ S: freshState(), config: null })
+    expect(shown()).toBe('th')
   })
 
   it('without DEFAULT_LANG a fresh copy follows the browser when the app speaks it', () => {

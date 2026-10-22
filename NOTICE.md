@@ -173,3 +173,10 @@ by the Capawesome Team (Robin Genz), a Capacitor wrapper around Google's ML Kit,
 **Apache License 2.0**. openGym pins the `7.x` line to stay on Capacitor 7. The full license text is
 available at <https://www.apache.org/licenses/LICENSE-2.0> and in the package's own `LICENSE` file.
 The decoded string is what openGym keeps; the photo itself is never stored.
+
+## Typeface — Prompt
+
+GymBro's titles, buttons and numbers are set in [**Prompt**](https://github.com/cadsondemak/Prompt)
+by Cadson Demak, bundled as WOFF2 files in `frontend/src/fonts/` (Thai and Latin subsets, weights
+500 and 600), used under the **SIL Open Font License 1.1**. The full licence text ships beside the
+font files as `frontend/src/fonts/OFL.txt`.
