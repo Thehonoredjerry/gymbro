@@ -1,4 +1,4 @@
-FROM node:22-alpine AS default
+FROM node:25-alpine AS default
 
 ARG VERSION=dev
 ARG VCS_REF=dev
