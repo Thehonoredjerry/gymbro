@@ -25,7 +25,7 @@ HTTPS on a LAN without a public domain has [its own guide](SELF_HOSTING_HTTPS.md
 Requirements: [Docker](https://docs.docker.com/get-docker/) with the Compose plugin.
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USER/gymbro
+git clone https://github.com/Thehonoredjerry/gymbro
 cd GymBro
 cp .env.example .env
 docker compose pull   # prebuilt images from ghcr.io (amd64 + arm64) — or skip and build from source

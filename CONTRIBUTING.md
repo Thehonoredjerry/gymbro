@@ -82,11 +82,11 @@ checks yet" just means nobody has pressed the button.
 
 | You have | Goes to |
 | --- | --- |
-| A question, or self-hosting that won't behave | [Discussions → Q&A](https://github.com/YOUR-GITHUB-USER/gymbro/discussions/categories/q-a) |
-| An idea you're not sure about yet | [Discussions → Ideas](https://github.com/YOUR-GITHUB-USER/gymbro/discussions/categories/ideas) |
-| A reproducible bug | [Issues](https://github.com/YOUR-GITHUB-USER/gymbro/issues) |
-| A change you've already built | [A pull request](https://github.com/YOUR-GITHUB-USER/gymbro/pulls) |
-| A security problem | [Private report](https://github.com/YOUR-GITHUB-USER/gymbro/security/advisories/new), see [SECURITY.md](SECURITY.md) |
+| A question, or self-hosting that won't behave | [Discussions → Q&A](https://github.com/Thehonoredjerry/gymbro/discussions/categories/q-a) |
+| An idea you're not sure about yet | [Discussions → Ideas](https://github.com/Thehonoredjerry/gymbro/discussions/categories/ideas) |
+| A reproducible bug | [Issues](https://github.com/Thehonoredjerry/gymbro/issues) |
+| A change you've already built | [A pull request](https://github.com/Thehonoredjerry/gymbro/pulls) |
+| A security problem | [Private report](https://github.com/Thehonoredjerry/gymbro/security/advisories/new), see [SECURITY.md](SECURITY.md) |
 
 An answered question in Discussions is worth more than the same answer in a chat log, because the
 next person searching "passkey login fails behind my reverse proxy" finds it.

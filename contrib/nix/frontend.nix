@@ -46,7 +46,7 @@ buildNpmPackage rec {
 
   meta = with lib; {
     description = "GymBro frontend — self-hosted gym & body-weight tracker PWA";
-    homepage = "https://github.com/YOUR-GITHUB-USER/gymbro";
+    homepage = "https://github.com/Thehonoredjerry/gymbro";
     license = licenses.agpl3Plus;
     platforms = nodejs.meta.platforms;
   };

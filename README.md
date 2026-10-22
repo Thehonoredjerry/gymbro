@@ -75,7 +75,7 @@ GymBro แปลเป็นภาษาไทยครบทุกหน้า�
 You need [Docker](https://docs.docker.com/get-docker/) with Compose.
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USER/gymbro
+git clone https://github.com/Thehonoredjerry/gymbro
 cd gymbro
 cp .env.example .env
 docker compose up -d --build
@@ -126,7 +126,7 @@ variable. The [self-hosting guide](docs/SELF_HOSTING.md) covers every option in 
 
 The same codebase builds a standalone app with Capacitor: no account, no server, everything stays
 on the phone, with native reminders and a rest countdown in the notification shade. Signed APKs go
-on the [releases page](https://github.com/YOUR-GITHUB-USER/gymbro/releases); on iPhone, self-host
+on the [releases page](https://github.com/Thehonoredjerry/gymbro/releases); on iPhone, self-host
 and add the PWA to your home screen from Safari. Details: [docs/MOBILE.md](docs/MOBILE.md).
 
 ## How it works

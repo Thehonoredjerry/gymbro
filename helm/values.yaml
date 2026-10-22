@@ -94,7 +94,7 @@ affinity: {}
 
 api:
   image:
-    repository: ghcr.io/your-github-user/gymbro-api
+    repository: ghcr.io/thehonoredjerry/gymbro-api
     pullPolicy: IfNotPresent
     tag: 1.4.1               # keep in step with web.image.tag
   service:
@@ -147,7 +147,7 @@ api:
 
 web:
   image:
-    repository: ghcr.io/your-github-user/gymbro-web
+    repository: ghcr.io/thehonoredjerry/gymbro-web
     pullPolicy: IfNotPresent
     tag: 1.4.1
   service:

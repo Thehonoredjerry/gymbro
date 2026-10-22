@@ -46,5 +46,5 @@ Design notes for specific features, kept next to the code they describe:
 ## Still stuck?
 
 Ask in
-[Discussions](https://github.com/YOUR-GITHUB-USER/gymbro/discussions). If something in these docs was
+[Discussions](https://github.com/Thehonoredjerry/gymbro/discussions). If something in these docs was
 wrong or missing, that's worth an issue too.

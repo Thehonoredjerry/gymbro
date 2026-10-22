@@ -26,7 +26,7 @@ An App Store build is on the [roadmap](../ROADMAP.md).
 
 That's deliberate. The APK is signed, published with a `.sha256` next to every release, and the app
 checks for updates itself. Get it from the
-[latest release](https://github.com/YOUR-GITHUB-USER/gymbro/releases/latest).
+[latest release](https://github.com/Thehonoredjerry/gymbro/releases/latest).
 
 ### Where is my data?
 
@@ -100,5 +100,5 @@ by GymBro's license. Anything outside openGym needs your own licence from
 
 ### Where do I ask something that isn't here?
 
-[Discussions](https://github.com/YOUR-GITHUB-USER/gymbro/discussions) if the next person should be
-able to find it, [Issues](https://github.com/YOUR-GITHUB-USER/gymbro/issues) for a bug.
+[Discussions](https://github.com/Thehonoredjerry/gymbro/discussions) if the next person should be
+able to find it, [Issues](https://github.com/Thehonoredjerry/gymbro/issues) for a bug.

@@ -13,7 +13,7 @@ Read [docs/SELF_HOSTING.md](../docs/SELF_HOSTING.md) first. The passkey requirem
 ## Install
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USER/gymbro
+git clone https://github.com/Thehonoredjerry/gymbro
 cd GymBro
 
 helm install gymbro ./helm -n fitness --create-namespace \

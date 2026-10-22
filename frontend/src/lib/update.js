@@ -11,7 +11,7 @@
 
 import { MOBILE } from './mobile.js'
 
-const REPO = 'YOUR-GITHUB-USER/gymbro'
+const REPO = 'Thehonoredjerry/gymbro'
 const LATEST_URL = `https://api.github.com/repos/${REPO}/releases/latest`
 export const RELEASES_PAGE = `https://github.com/${REPO}/releases/latest`
 

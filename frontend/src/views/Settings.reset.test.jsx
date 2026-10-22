@@ -112,6 +112,6 @@ describe('Settings — footer', () => {
   it('links the source code to its home on GitHub, on About & updates', () => {
     act(() => root.render(<Settings page="about" />))
     const link = [...host.querySelectorAll('a')].find(a => a.textContent === 'Source code')
-    expect(link.getAttribute('href')).toBe('https://github.com/YOUR-GITHUB-USER/gymbro')
+    expect(link.getAttribute('href')).toBe('https://github.com/Thehonoredjerry/gymbro')
   })
 })

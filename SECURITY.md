@@ -19,7 +19,7 @@ git pull && docker compose pull && docker compose up -d
 ## Reporting a vulnerability
 
 Use GitHub's private vulnerability reporting:
-<https://github.com/YOUR-GITHUB-USER/gymbro/security/advisories/new>. The report is visible only to
+<https://github.com/Thehonoredjerry/gymbro/security/advisories/new>. The report is visible only to
 you and the maintainer, and it becomes the advisory thread where the fix is discussed and, once
 released, published.
 
@@ -53,7 +53,7 @@ in the thread; there's no objection, and no request to sit on it indefinitely.
   change a signed-in user's data.
 - **Shipped deployment config** — `docker-compose.yml`, `web/nginx.conf.template`, the two Dockerfiles:
   a default that exposes something a self-hoster wouldn't expect to be exposed.
-- **The published images** `ghcr.io/your-github-user/gymbro-{api,web}`.
+- **The published images** `ghcr.io/thehonoredjerry/gymbro-{api,web}`.
 
 ## Out of scope
 

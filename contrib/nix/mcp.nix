@@ -45,7 +45,7 @@ buildNpmPackage rec {
 
   meta = with lib; {
     description = "GymBro MCP server — read-only stdio bridge for LLM clients";
-    homepage = "https://github.com/YOUR-GITHUB-USER/gymbro";
+    homepage = "https://github.com/Thehonoredjerry/gymbro";
     license = licenses.agpl3Plus;
     platforms = nodejs.meta.platforms;
   };

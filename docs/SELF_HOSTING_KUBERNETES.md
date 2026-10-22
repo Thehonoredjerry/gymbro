@@ -16,7 +16,7 @@ downloaded at start-up. There are only a few resources to create:
   works as well), plus a cert-manager Certificate for the hostname.
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USER/gymbro
+git clone https://github.com/Thehonoredjerry/gymbro
 cd GymBro
 # In kubernetes/deployment.yaml, set RP_ID and ORIGIN in spec.template.spec.containers[api].env
 # to your hostname, and the hostname in kubernetes/httproute.yaml.
@@ -35,7 +35,7 @@ Notes:
   called `eg` in `envoy-gateway-system` with an `https` listener; change both to match your
   cluster. The Gateway has to terminate TLS; this was tested with
   [Envoy Gateway](https://gateway.envoyproxy.io) and [cert-manager](https://cert-manager.io).
-- The images are the published `ghcr.io/your-github-user/gymbro-api` and `opengym-web`.
+- The images are the published `ghcr.io/thehonoredjerry/gymbro-api` and `opengym-web`.
 - The images are pinned to a release (`1.4.1`), the API and the web image always to the same
   one. To update, read the release notes, set the new version on both and apply again; pinning
   to `latest` instead means a restarted pod can come back on a version you never chose.

@@ -55,7 +55,7 @@ cd frontend && npm run build:mobile   # + cap sync, points media at the CDN data
 There is no linter/formatter configured (no ESLint/Prettier config in the repo) and no
 TypeScript — match the existing style by hand.
 
-GitHub (`github.com/YOUR-GITHUB-USER/gymbro`) is the home of the project. Pull requests are gated by
+GitHub (`github.com/Thehonoredjerry/gymbro`) is the home of the project. Pull requests are gated by
 `.github/workflows/test.yml` on Node 22 — the same version as `web/Dockerfile` / `api/Dockerfile`
 (`node:22-alpine`): the frontend, api and MCP suites, the locale checks, and building and booting
 the api image.

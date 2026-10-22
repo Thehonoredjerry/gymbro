@@ -1,7 +1,7 @@
 # The phone app (Android and iOS)
 
 **Just want the app?** Download the APK from the
-[latest release](https://github.com/YOUR-GITHUB-USER/gymbro/releases/latest) and read
+[latest release](https://github.com/Thehonoredjerry/gymbro/releases/latest) and read
 [how the phone app works](#how-the-phone-app-works) and
 [connecting it to your server](#connecting-the-app-to-your-own-server). On an iPhone, see
 [what's possible](#iphone--whats-actually-possible). Everything from [Prerequisites](#prerequisites)
@@ -264,7 +264,7 @@ accounts, no store rules, no yearly fees between you and an open-source app.
 
 ### Android — sideload the APK
 
-Signed APKs are attached to each [GitHub release](https://github.com/YOUR-GITHUB-USER/gymbro/releases),
+Signed APKs are attached to each [GitHub release](https://github.com/Thehonoredjerry/gymbro/releases),
 with a `.sha256` beside each one. The in-app updater checks the same releases.
 
 Android asks you to allow installs from the browser the first time — that's standard for any

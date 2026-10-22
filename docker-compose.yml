@@ -4,7 +4,7 @@ services:
   # Passkey auth + per-user data (Node, no framework).
   # image: prebuilt (docker compose pull). build: from source (docker compose up --build).
   api:
-    image: ghcr.io/your-github-user/gymbro-api:latest
+    image: ghcr.io/thehonoredjerry/gymbro-api:latest
     build:
       context: ./api
     restart: unless-stopped
@@ -25,7 +25,7 @@ services:
   # Builds the React frontend (multi-stage) and serves it, proxying /api → api
   # and the exercise animations, which are part of the image. Single origin for passkeys.
   web:
-    image: ghcr.io/your-github-user/gymbro-web:latest
+    image: ghcr.io/thehonoredjerry/gymbro-web:latest
     build:
       context: .
       dockerfile: web/Dockerfile
