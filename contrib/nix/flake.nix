@@ -1,5 +1,5 @@
 {
-  description = "openGym — self-hosted gym & body-weight tracker";
+  description = "GymBro — self-hosted gym & body-weight tracker";
 
   inputs = {
     # A release branch, not nixos-unstable: this flake is contributed packaging that has to
@@ -21,16 +21,16 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        opengymPackages = import ./default.nix { inherit pkgs; };
+        gymbroPackages = import ./default.nix { inherit pkgs; };
 
-        opengymNixOSModule = self.nixosModules.opengym;
+        gymbroNixOSModule = self.nixosModules.gymbro;
 
         testConfig = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
-            opengymNixOSModule
+            gymbroNixOSModule
             {
-              services.opengym = {
+              services.gymbro = {
                 enable = true;
                 rpId = "localhost";
                 origin = "http://localhost:8080";
@@ -44,7 +44,7 @@
           ];
         };
 
-        cfg = testConfig.config.services.opengym;
+        cfg = testConfig.config.services.gymbro;
 
         nginxEnabled = testConfig.config.services.nginx.enable;
 
@@ -52,9 +52,9 @@
         nginxTestConfig = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
-            opengymNixOSModule
+            gymbroNixOSModule
             {
-              services.opengym = {
+              services.gymbro = {
                 enable = true;
                 nginx.enable = true;
               };
@@ -63,23 +63,23 @@
           ];
         };
 
-        check = pkgs.runCommand "opengym-module-check" { } ''
+        check = pkgs.runCommand "gymbro-module-check" { } ''
           set -euo pipefail
           # Verify the module evaluated correctly
-          echo "services.opengym.enable = ${if cfg.enable then "true" else "false"}"
-          echo "services.opengym.apiPort = ${toString cfg.apiPort}"
-          echo "services.opengym.rpId = ${cfg.rpId}"
-          echo "services.opengym.origin = ${cfg.origin}"
+          echo "services.gymbro.enable = ${if cfg.enable then "true" else "false"}"
+          echo "services.gymbro.apiPort = ${toString cfg.apiPort}"
+          echo "services.gymbro.rpId = ${cfg.rpId}"
+          echo "services.gymbro.origin = ${cfg.origin}"
 
           # Verify systemd service exists
-          echo "systemd.services.opengym-api exists = ${
-            if testConfig.config.systemd.services ? opengym-api then "true" else "false"
+          echo "systemd.services.gymbro-api exists = ${
+            if testConfig.config.systemd.services ? gymbro-api then "true" else "false"
           }"
 
           # Verify extra environment is applied to the API unit
-          echo "opengym-api env MY_FLAG = ${
-            if testConfig.config.systemd.services.opengym-api.environment ? MY_FLAG then
-              testConfig.config.systemd.services.opengym-api.environment.MY_FLAG
+          echo "gymbro-api env MY_FLAG = ${
+            if testConfig.config.systemd.services.gymbro-api.environment ? MY_FLAG then
+              testConfig.config.systemd.services.gymbro-api.environment.MY_FLAG
             else
               "missing"
           }"
@@ -106,12 +106,12 @@
           }"
 
           # Verify frontend/media store paths are exposed for a web server
-          echo "services.opengym.web.root = ${cfg.web.root}"
-          echo "services.opengym.media.root = ${cfg.media.root}"
+          echo "services.gymbro.web.root = ${cfg.web.root}"
+          echo "services.gymbro.media.root = ${cfg.media.root}"
 
           # Verify user exists
-          echo "users.users.opengym exists = ${
-            if testConfig.config.users.users ? opengym then "true" else "false"
+          echo "users.users.gymbro exists = ${
+            if testConfig.config.users.users ? gymbro then "true" else "false"
           }"
 
           # All checks passed
@@ -119,18 +119,18 @@
         '';
       in
       {
-        packages = opengymPackages // {
-          default = opengymPackages.opengym-frontend;
+        packages = gymbroPackages // {
+          default = gymbroPackages.gymbro-frontend;
         };
 
-        apps.opengym = {
+        apps.gymbro = {
           type = "app";
           # Runs the full local stack: API + frontend (exercise media included) behind a throwaway
           # Caddy. Defaults to http://localhost:8080; env vars override ports/data/rp.
-          program = "${pkgs.writeShellScript "opengym" ''
+          program = "${pkgs.writeShellScript "gymbro" ''
             set -euo pipefail
 
-            DATA_DIR=''${OPENGYM_DATA_DIR:-/tmp/opengym-data}
+            DATA_DIR=''${OPENGYM_DATA_DIR:-/tmp/gymbro-data}
             API_PORT=''${OPENGYM_API_PORT:-3000}
             WEB_PORT=''${OPENGYM_WEB_PORT:-8080}
             mkdir -p "$DATA_DIR"
@@ -141,7 +141,7 @@
             export ORIGIN=''${OPENGYM_ORIGIN:-http://localhost:$WEB_PORT}
             export ALLOW_GUEST=''${ALLOW_GUEST:-1}
 
-            ${opengymPackages.opengym-api}/bin/opengym-api &
+            ${gymbroPackages.gymbro-api}/bin/gymbro-api &
             API_PID=$!
 
             CFGDIR=$(mktemp -d)
@@ -164,28 +164,28 @@
                 reverse_proxy 127.0.0.1:$API_PORT
               }
               handle {
-                root * ${opengymPackages.opengym-frontend}/share/opengym
+                root * ${gymbroPackages.gymbro-frontend}/share/gymbro
                 try_files {path} /index.html
                 file_server
               }
             }
             EOF
 
-            echo "openGym running at http://localhost:$WEB_PORT (API on :$API_PORT, data in $DATA_DIR) — Ctrl-C to stop"
+            echo "GymBro running at http://localhost:$WEB_PORT (API on :$API_PORT, data in $DATA_DIR) — Ctrl-C to stop"
             ${pkgs.caddy}/bin/caddy run --config "$CGFILE"
           ''}";
         };
 
-        apps.default = self.apps.${system}.opengym;
+        apps.default = self.apps.${system}.gymbro;
 
         checks = {
           nixos-module-eval = check;
         }
         // (pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # Boots a NixOS VM and exercises the full HTTP contract (API + nginx vhost + SPA).
-          opengym-nixos-test = import ./tests.nix {
+          gymbro-nixos-test = import ./tests.nix {
             inherit pkgs;
-            modules = [ opengymNixOSModule ];
+            modules = [ gymbroNixOSModule ];
           };
         });
 
@@ -196,7 +196,7 @@
             git
           ];
           shellHook = ''
-            echo "openGym dev shell (Node.js $(node --version))"
+            echo "GymBro dev shell (Node.js $(node --version))"
             echo "  cd frontend && npm install && npm run dev"
             echo "  cd api && npm install && node server.js"
           '';
@@ -204,21 +204,21 @@
       }
     )
     // {
-      # Wraps the module so NixOS configurations using it get openGym packages built from this
-      # flake's LOCKED nixpkgs input. Importing contrib/nix/opengym.nix directly falls back to
+      # Wraps the module so NixOS configurations using it get GymBro packages built from this
+      # flake's LOCKED nixpkgs input. Importing contrib/nix/gymbro.nix directly falls back to
       # the importing system's nixpkgs.
-      nixosModules.opengym =
+      nixosModules.gymbro =
         { pkgs, ... }:
         {
-          imports = [ ./opengym.nix ];
-          _module.args.opengymPkgs = self.packages.${pkgs.stdenv.hostPlatform.system} or null;
+          imports = [ ./gymbro.nix ];
+          _module.args.gymbroPkgs = self.packages.${pkgs.stdenv.hostPlatform.system} or null;
         };
-      nixosModules.default = self.nixosModules.opengym;
+      nixosModules.default = self.nixosModules.gymbro;
 
       # Conventional NixOS test output (boots a VM; also wired into checks on Linux).
-      nixosTests.opengym = import ./tests.nix {
+      nixosTests.gymbro = import ./tests.nix {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ self.nixosModules.opengym ];
+        modules = [ self.nixosModules.gymbro ];
       };
     };
 }

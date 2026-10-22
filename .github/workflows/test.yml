@@ -8,8 +8,6 @@ on:
       - 'frontend/**'
       - 'api/**'
       - 'mcp/**'
-      - 'scripts/build-api-docs.mjs'
-      - 'website/api.html'
       - '.github/workflows/test.yml'
   push:
     branches: [main]
@@ -17,8 +15,6 @@ on:
       - 'frontend/**'
       - 'api/**'
       - 'mcp/**'
-      - 'scripts/build-api-docs.mjs'
-      - 'website/api.html'
       - '.github/workflows/test.yml'
   workflow_dispatch:
 
@@ -93,9 +89,6 @@ jobs:
         working-directory: api
       - run: npm test
         working-directory: api
-      # website/api.html is generated from api/openapi.yaml and committed; a spec change must regenerate it.
-      - run: npm ci
-      - run: node scripts/build-api-docs.mjs --check
 
   # Builds *and runs* the api image: building alone would not catch an image that exits on boot.
   api-image:

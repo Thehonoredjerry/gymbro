@@ -1,4 +1,4 @@
-# openGym documentation
+# GymBro documentation
 
 Pick the part that matches what you're doing. If you just have a question, try the
 [FAQ](FAQ.md) first.
@@ -11,9 +11,6 @@ Pick the part that matches what you're doing. If you just have a question, try t
 | [Phone app](MOBILE.md) | You want the Android APK or the iPhone options, or to connect the app to your own server |
 | [Importing data](DATA_IMPORTS.md) | You're coming from FitNotes, Strong, Hevy or Apple Health, or sharing a plan with someone |
 
-The [live demo](https://opengym.ch/demo/) is the real app with example data, nothing
-to install.
-
 ## Hosting it
 
 | Guide | Read it when |
@@ -22,7 +19,7 @@ to install.
 | [HTTPS at home](SELF_HOSTING_HTTPS.md) | You want valid certificates on your LAN without exposing the server to the internet |
 | [Kubernetes](SELF_HOSTING_KUBERNETES.md) | You run a cluster instead of Docker Compose |
 | [MCP server](../mcp/README.md) | You want Claude Desktop, Cursor or another AI client to read your training history |
-| [NixOS](NIX.md) | You run NixOS and want openGym native — flake packages and a NixOS module, no Docker |
+| [NixOS](NIX.md) | You run NixOS and want GymBro native — flake packages and a NixOS module, no Docker |
 | [Security](../SECURITY.md) | You host it for other people, or want to report a vulnerability |
 
 All settings live in `.env`; [`.env.example`](../.env.example) explains each one, and the
@@ -48,6 +45,6 @@ Design notes for specific features, kept next to the code they describe:
 
 ## Still stuck?
 
-Ask on the [Discord](https://discord.gg/e62jY6fwVb) or in
-[Discussions](https://github.com/DuarteSantos8/openGym/discussions). If something in these docs was
+Ask in
+[Discussions](https://github.com/YOUR-GITHUB-USER/gymbro/discussions). If something in these docs was
 wrong or missing, that's worth an issue too.

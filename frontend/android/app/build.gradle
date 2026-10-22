@@ -4,7 +4,8 @@ android {
     namespace "ch.duartesantos.opengym"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ch.duartesantos.opengym"
+        // shortcut: the Java namespace above keeps upstream's package path; the installed app id is GymBro's own.
+        applicationId "com.gymbro.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 26

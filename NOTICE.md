@@ -1,9 +1,23 @@
 # Third-party notices
 
+## GymBro is a fork of openGym
+
+GymBro is a modified version of **openGym** (<https://github.com/DuarteSantos8/openGym>), forked
+from openGym v1.4.1. Changes in this fork: renamed to GymBro, the AI coach removed, and a new visual
+design. GymBro's modifications are licensed under the same **GNU AGPL v3.0** as the original.
+
 openGym — Copyright (C) 2026 Duarte Santos.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 
+Everything below is openGym's notice, kept as it was. Where it says "openGym", it means the
+original project; in particular the media licence in "Exercise media" was granted to openGym, not
+to GymBro.
+
 ## App store exception
+
+> This additional permission was given by openGym's copyright holder for the openGym mobile
+> application. Whether it extends to a renamed fork is the copyright holder's call; don't rely on
+> it for GymBro without asking.
 
 As an additional permission under section 7 of the AGPL v3.0, the copyright holder permits
 distribution of the openGym mobile application through app store platforms (such as the

@@ -4,8 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-openGym is a self-hosted gym & body-weight tracker PWA. Two containers (`api` + `web`) plus a
-`./data` folder the user owns — no third-party account, no telemetry. Passkey (WebAuthn) login,
+GymBro is a friendly self-hosted gym & body-weight tracker PWA, forked from openGym
+(github.com/DuarteSantos8/openGym) with the AI coach removed and a warmer, Thai-friendly look.
+Two containers (`api` + `web`) plus a `./data` folder the user owns — no third-party account, no telemetry. Passkey (WebAuthn) login,
 installable as a home-screen app, optional Capacitor shells for standalone Android/iOS builds.
 License: AGPL-3.0-or-later.
 
@@ -15,15 +16,14 @@ License: AGPL-3.0-or-later.
 frontend/  React 19 + Vite app (src/views, src/components, src/store, src/lib). Builds to static files.
            android/ + ios/ are the Capacitor shells for the standalone mobile app (docs/MOBILE.md).
 api/       backend — server.js (Node, no framework), deps: @simplewebauthn/server, web-push.
-           coach/ is the optional AI coach; openapi.yaml documents every route.
+           openapi.yaml documents every route.
 web/       multi-stage Dockerfile (builds frontend → nginx) + nginx.conf.template (serves app, proxies /api).
 mcp/       optional MCP server — read-only stdio bridge exposing a user's workouts/1RM/muscle
            balance to LLM clients (Claude Desktop, Cursor…). Not part of the Docker build; only
            runs when an LLM client spawns it.
 media/     exercise img/gif, gitignored, fetched at runtime by the `media` compose service.
-website/   static project site (plain HTML/CSS/JS), deployed separately.
 kubernetes/ example manifests (docs/SELF_HOSTING_KUBERNETES.md).
-docs/      guides indexed in docs/README.md (FAQ, SELF_HOSTING*, MOBILE, AI_COACH, DATA_IMPORTS, API);
+docs/      guides indexed in docs/README.md (FAQ, SELF_HOSTING*, MOBILE, DATA_IMPORTS, API);
            docs/dev/ holds feature design notes (SET_TYPES: drop sets/rest-pause, LIST_VIEW, COMBINE_ROUTINES).
 ```
 
@@ -55,13 +55,13 @@ cd frontend && npm run build:mobile   # + cap sync, points media at the CDN data
 There is no linter/formatter configured (no ESLint/Prettier config in the repo) and no
 TypeScript — match the existing style by hand.
 
-GitHub (`github.com/DuarteSantos8/openGym`) is the home of the project; `.github/workflows/mirror.yml`
-pushes `main` and `v*` tags to the GitLab mirror. Pull requests are gated by
+GitHub (`github.com/YOUR-GITHUB-USER/gymbro`) is the home of the project. Pull requests are gated by
 `.github/workflows/test.yml` on Node 22 — the same version as `web/Dockerfile` / `api/Dockerfile`
 (`node:22-alpine`): the frontend, api and MCP suites, the locale checks, and building and booting
-both api image targets. GitLab CI on the mirror (`.gitlab-ci.yml`) builds the release artifacts:
-the signed Android APK, the multi-arch images and the SBOMs. Never push or merge on GitLab
-directly; the mirror is fast-forward only.
+the api image.
+
+Keep the media licence wording intact: the exercise stills and animations in `catalogue/media/`
+are licensed from Gym visual **for openGym only** (NOTICE.md). Never rebrand those lines.
 
 ## Architecture
 

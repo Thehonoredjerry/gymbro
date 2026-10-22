@@ -7,7 +7,7 @@
 }:
 
 buildNpmPackage rec {
-  pname = "opengym-frontend";
+  pname = "gymbro-frontend";
   inherit version;
 
   # The build reads ../catalogue, so it needs the repo root — same layout the Dockerfile uses.
@@ -34,19 +34,19 @@ buildNpmPackage rec {
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/share/opengym
-    cp -r dist/* $out/share/opengym/
+    mkdir -p $out/share/gymbro
+    cp -r dist/* $out/share/gymbro/
     # The exercise stills and animations come from the source tree (catalogue/media, 180 px,
     # licensed from Gym visual for openGym only: see catalogue/media/NOTICE.md). The same script
     # the demo and Android builds use puts them at exercise-media/ next to the app, which is
     # where the app asks for them. Nothing is downloaded, at build time or at runtime.
-    env -u APP_MEDIA_DIR node ../scripts/catalogue/stage-media.mjs $out/share/opengym
+    env -u APP_MEDIA_DIR node ../scripts/catalogue/stage-media.mjs $out/share/gymbro
     runHook postInstall
   '';
 
   meta = with lib; {
-    description = "openGym frontend — self-hosted gym & body-weight tracker PWA";
-    homepage = "https://gitlab.com/DuarteSantos8/opengym";
+    description = "GymBro frontend — self-hosted gym & body-weight tracker PWA";
+    homepage = "https://github.com/YOUR-GITHUB-USER/gymbro";
     license = licenses.agpl3Plus;
     platforms = nodejs.meta.platforms;
   };
