@@ -2246,6 +2246,39 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /api/admin/users/new:
+    post:
+      tags: [admin]
+      operationId: adminUserNew
+      summary: 'Admin: create an account with a starting password'
+      description: >-
+        GymBro. Makes a friend's account directly, under the same password rules as
+        /api/register/password; the friend then signs in with the name and password.
+        No session is set. Only present while PASSWORD_LOGIN is on (404 otherwise). Audited.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, password]
+              properties:
+                name: { type: string, maxLength: 40 }
+                password: { type: string }
+      responses:
+        '200':
+          description: The new account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { type: object }
+        '400': { description: 'Missing name, or the password breaks a rule (code: missing, too-short, too-long, too-common).' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { description: 'Another profile already signs in with this name (code: name-taken).' }
+
   /api/admin/invites/new:
     post:
       tags: [admin]

@@ -1333,6 +1333,28 @@ const passwordRoutes = {
     json(res, 200, { user: publicUser(user), ...appToken(req, user) }, { 'Set-Cookie': sessionCookie(user) });
   },
 
+  // GymBro: an admin makes a friend's account directly — a name and a starting password, under
+  // the same password rules as sign-up — instead of handing out an invite code. No session is
+  // set: the admin stays signed in as themself, and the friend signs in with the two.
+  'POST /api/admin/users/new': async (req, res) => {
+    const admin = requireAdmin(req, res); if (!admin) return;
+    const body = await readBody(req);
+    const name = text(body.name).trim().slice(0, 40);
+    if (!name) return json(res, 400, { error: 'name required', code: 'missing' });
+    const problem = passwordProblem(body.password, name);
+    if (problem) return policyError(res, problem);
+    const taken = () => json(res, 409, { error: 'another profile already signs in with this name', code: 'name-taken' });
+    if (nameTaken(name)) return taken();
+    const h = await hashPassword(body.password);
+    if (nameTaken(name)) return taken();
+    const created = new Date().toISOString();
+    const user = { id: crypto.randomBytes(12).toString('base64url'), name, created, pw: { h, set: created }, createdBy: admin.id };
+    db.users.push(user);
+    saveDb();
+    audit(req, 'admin.user.create', { user: admin, msg: name });
+    json(res, 200, { user: publicUser(user) });
+  },
+
   // What Settings shows: whether a password is set, and whether it could be removed.
   'GET /api/account/password': async (req, res) => {
     const user = readSession(req);

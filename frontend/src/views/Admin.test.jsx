@@ -106,7 +106,7 @@ describe('Admin when the users cannot be loaded', () => {
     act(() => retry.click())
     await settle()
     expect(page.querySelector('[role="alert"]')).toBeNull()
-    expect(text(page)).toContain('1 users')
+    expect(text(page)).toContain('1 user ·')
     expect([...page.querySelectorAll('.item')].some(el => el.textContent.includes('Mallory'))).toBe(true)
   })
 

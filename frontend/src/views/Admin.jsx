@@ -8,7 +8,8 @@ import { auditCat, auditLine, fmtWhen } from '../lib/audit.js'
 import { workoutVolume, setsDone } from '../lib/history.js'
 import { confirmSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
-import { Button } from '../components/ui.jsx'
+import { Button, Segmented } from '../components/ui.jsx'
+import { tappable } from '../lib/use-sheet-keyboard.js'
 import '../admin.css'
 
 // Admin-only operator dashboard (owner passkey + admin flag; guarded again server-side).
@@ -149,46 +150,127 @@ function UserDetail({ id, onChanged, close }) {
   </>
 }
 
-function InvitesCard({ invites, reload, inviteOnly }) {
+// What the admin hands a friend, written out once: the code or the starting password is shown
+// here and nowhere else, with a message ready to paste into a chat.
+const pwAlphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+export function newPassword() {
+  const b = crypto.getRandomValues(new Uint8Array(12))
+  const c = [...b].map(x => pwAlphabet[x % pwAlphabet.length]).join('')
+  return c.slice(0, 4) + '-' + c.slice(4, 8) + '-' + c.slice(8)
+}
+// The server's refusals, said plainly. Anything else is shown as the server worded it.
+const refusal = e => ({
+  'name-taken': 'That name is already taken. Pick another.',
+  'too-short': 'The password needs at least 10 characters.',
+  'too-long': 'That password is too long.',
+  'too-common': 'That password is too easy to guess.',
+  missing: 'Enter a name.',
+}[e?.data?.code] || e?.message || 'Something went wrong.')
+
+function Handout({ title, lines, message, onDone }) {
   const toast = useUI(s => s.toast)
-  const gen = () => api('/api/admin/invites/new', { method: 'POST', body: '{}' })
-    .then(({ invite }) => { navigator.clipboard?.writeText(invite.code).catch(() => {}); toast('Code ' + invite.code + ' created & copied'); reload() })
-    .catch(e => toast(e.message))
+  const copy = () => { navigator.clipboard?.writeText(message).catch(() => {}); toast('Message copied') }
+  const share = () => navigator.share({ text: message }).catch(() => {})
+  return <div className="adm-new" role="status">
+    <div className="adm-new-t">{title}</div>
+    {lines.map(([k, v]) => <div key={k} className="adm-kv"><span className="k">{k}</span><span className="v adm-mono">{v}</span></div>)}
+    <label className="adm-label" htmlFor="adm-msg">Message to send</label>
+    <textarea id="adm-msg" className="adm-msg" readOnly rows={4} value={message} onFocus={e => e.target.select()} />
+    <div className="adm-actions">
+      <Button variant="primary" icon="copy" onClick={copy}>Copy message</Button>
+      {typeof navigator.share === 'function' && <Button icon="share" onClick={share}>Share</Button>}
+      <Button variant="ghost" onClick={onDone}>Done</Button>
+    </div>
+    <div className="adm-note">This is the only time it is shown.</div>
+  </div>
+}
+
+function AddFriend({ inviteOnly, onAdded }) {
+  const [mode, setMode] = useState('invite')
+  const [note, setNote] = useState('')
+  const [name, setName] = useState('')
+  const [pw, setPw] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState(null)
+  const [made, setMade] = useState(null)
+  const site = location.origin
+  const run = async (ev, call) => {
+    ev.preventDefault()
+    if (busy) return
+    setBusy(true); setErr(null)
+    try { setMade(await call()); onAdded() } catch (e) { setErr(refusal(e)) } finally { setBusy(false) }
+  }
+  const invite = ev => run(ev, async () => {
+    const { invite } = await api('/api/admin/invites/new', { method: 'POST', body: JSON.stringify({ note: note.trim() }) })
+    setNote('')
+    return {
+      title: 'Invite code ready' + (invite.note ? ' for ' + invite.note : ''),
+      lines: [['Code', invite.code]],
+      message: `Join me on GymBro: ${site}\nTap "Create account", pick a name and a password, and enter this invite code:\n${invite.code}`,
+    }
+  })
+  const create = ev => run(ev, async () => {
+    const n = name.trim()
+    if (!n) throw new Error('Enter a name.')
+    const { user } = await api('/api/admin/users/new', { method: 'POST', body: JSON.stringify({ name: n, password: pw }) })
+    setName(''); setPw('')
+    return {
+      title: 'Account created for ' + user.name,
+      lines: [['Name', user.name], ['Password', pw]],
+      message: `Your GymBro account is ready: ${site}\nName: ${user.name}\nPassword: ${pw}\nSign in, then change the password in Settings, Account.`,
+    }
+  })
+  const pick = m => { setMode(m); setErr(null) }
+  return <section className="card adm-sec">
+    <h2>Add a friend</h2>
+    <Segmented options={[{ value: 'invite', label: 'Invite code' }, { value: 'create', label: 'Create account' }]} value={mode} onChange={pick} />
+    {made ? <Handout {...made} onDone={() => setMade(null)} />
+      : mode === 'invite' ? <form className="adm-invite adm-form" onSubmit={invite}>
+        <div className="adm-field"><label htmlFor="adm-note">Who is it for? <span className="adm-opt">optional</span></label>
+          <input id="adm-note" name="note" className="field" maxLength={60} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Somchai" autoComplete="off" /></div>
+        {!inviteOnly && <div className="adm-note">Sign-up is open right now, so anyone can join without a code. Set INVITE_ONLY=1 on the server to require one.</div>}
+        {err && <div className="adm-err" role="alert">{err}</div>}
+        <Button variant="primary" type="submit" disabled={busy}>Create code</Button>
+      </form>
+      : <form className="adm-create adm-form" onSubmit={create}>
+        <div className="adm-field"><label htmlFor="adm-name">Name they sign in with</label>
+          <input id="adm-name" name="name" className="field" maxLength={40} value={name} onChange={e => setName(e.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} /></div>
+        <div className="adm-field"><label htmlFor="adm-pw">Starting password</label>
+          <div className="adm-row">
+            <input id="adm-pw" name="password" className="field adm-mono" value={pw} onChange={e => setPw(e.target.value)} autoComplete="off" spellCheck={false} />
+            <Button type="button" onClick={() => setPw(newPassword())}>Generate</Button>
+          </div></div>
+        {err && <div className="adm-err" role="alert">{err}</div>}
+        <Button variant="primary" type="submit" disabled={busy}>Create account</Button>
+      </form>}
+  </section>
+}
+
+function InviteList({ invites, reload }) {
+  const toast = useUI(s => s.toast)
   const revoke = code => confirmSheet({
-    title: 'Revoke code ' + code + '?', message: 'Anyone who has it can no longer use it. People who already signed up with it are not affected.',
+    title: 'Revoke ' + code + '?', message: 'The code stops working. Anyone who already joined with it keeps their account.',
     confirmText: 'Revoke', danger: true,
     onConfirm: () => api('/api/admin/invites/revoke', { method: 'POST', body: JSON.stringify({ code }) })
       .then(() => { toast('Code revoked'); reload() }).catch(e => toast(e.message))
   })
   const copy = code => { navigator.clipboard?.writeText(code).catch(() => {}); toast('Copied ' + code) }
-  const open = (invites || []).filter(i => !i.usedBy)
-  const used = (invites || []).filter(i => i.usedBy)
-  return <div className="card">
-    <div className="row between"><h2 style={{ margin: 0 }}>Invite codes</h2>
-      <Button variant="primary" size="sm" onClick={gen} icon="plus">New code</Button></div>
-    <div className="adm-lead">
-      {inviteOnly
-        ? 'Sign-up is invite-only: someone needs one of these codes to create a profile. Each code works once.'
-        : 'Sign-up is open, so codes are optional here. They only record who invited whom.'}
-    </div>
-    {open.length ? <>
-      <div className="adm-group-t">Unused · tap to copy</div>
-      {open.map(i => <div key={i.code} className="row between" style={{ padding: '6px 0', borderBottom: 'var(--hair) solid var(--sep)' }}>
-        <button className="adm-code" onClick={() => copy(i.code)} aria-label={'copy ' + i.code}>{i.code}</button>
-        <div className="row" style={{ gap: 4 }}>
-          <button className="iconbtn adm-iconbtn" onClick={() => copy(i.code)} aria-label="copy"><Icon name="copy" /></button>
-          <button className="iconbtn adm-iconbtn" style={{ color: 'var(--red)' }} onClick={() => revoke(i.code)} aria-label="revoke"><Icon name="trash" /></button>
+  const list = [...(invites || [])].sort((a, b) => (b.created || '').localeCompare(a.created || ''))
+  return <section className="card adm-sec">
+    <h2>Invite codes <span className="adm-count">{list.filter(i => !i.usedBy).length} unused</span></h2>
+    {list.length ? <div className="adm-table">
+      {list.map(i => <div key={i.code} className={'adm-tr' + (i.usedBy ? ' used' : '')}>
+        <div className="adm-td grow">
+          <div className="adm-mono">{i.code}</div>
+          <div className="adm-sub">{[i.note, i.usedBy ? 'used by ' + (i.usedByName || 'someone') : 'unused', i.created && fmtDate(i.created.slice(0, 10))].filter(Boolean).join(' · ')}</div>
         </div>
+        {!i.usedBy && <>
+          <button className="iconbtn adm-iconbtn" onClick={() => copy(i.code)} aria-label={'Copy ' + i.code}><Icon name="copy" /></button>
+          <button className="iconbtn adm-iconbtn adm-danger" onClick={() => revoke(i.code)} aria-label={'Revoke ' + i.code}><Icon name="trash" /></button>
+        </>}
       </div>)}
-    </> : null}
-    {used.length ? <>
-      <div className="adm-group-t" style={{ marginTop: open.length ? 12 : 0 }}>Already used</div>
-      {used.map(i => <div key={i.code} className="row between dim" style={{ padding: '6px 0', fontSize: '.82rem' }}>
-        <span style={{ fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', letterSpacing: '.06em' }}>{i.code}</span><span>→ {i.usedByName || 'used'}</span>
-      </div>)}
-    </> : null}
-    {!open.length && !used.length && <div className="adm-empty">No codes yet. "New code" makes one and copies it to your clipboard.</div>}
-  </div>
+    </div> : <div className="adm-empty">No codes yet.</div>}
+  </section>
 }
 
 // Who signed in, who tried and failed, what an admin changed. A card rather than its own route:
@@ -218,15 +300,10 @@ function AuditCard({ tick }) {
 
   if (meta && !meta.enabled) return null      // AUDIT_LOG=0 — the card isn't there at all
 
-  return <div className="card">
+  return <section className="card adm-sec">
     <div className="row between"><h2 style={{ margin: 0 }}>Activity log</h2>
       <button className="iconbtn adm-iconbtn" style={{ color: 'var(--red)' }} onClick={clear} aria-label="clear log"><Icon name="trash" /></button></div>
-    <div className="adm-lead">
-      Who signed in, what failed, and what an admin changed.
-      {meta ? ' ' + fmtNum(meta.total) + ' events'
-        + (meta.retention.days ? ', kept for ' + meta.retention.days + ' days' : '')
-        + (meta.ip_mode === 'off' ? ', without IP addresses' : '') + '.' : ''}
-    </div>
+    {meta && <div className="adm-note">{[fmtNum(meta.total) + ' events', meta.retention.days && 'kept ' + meta.retention.days + ' days', meta.ip_mode === 'off' && 'no IP addresses'].filter(Boolean).join(' · ')}</div>}
     <div className="chips" style={{ marginBottom: 10 }}>
       {[['', 'All'], ['auth', 'Sign-ins'], ['admin', 'Admin'], ['fail', 'Failed']].map(([v, l]) =>
         <button key={v} className={'chip' + (cat === v ? ' on' : '')} onClick={() => pick(v)}>{l}</button>)}
@@ -247,7 +324,7 @@ function AuditCard({ tick }) {
     {meta && !rows.length && <div className="adm-empty">Nothing logged yet.</div>}
     {meta?.nextBefore && <div style={{ marginTop: 10 }}>
       <Button size="sm" onClick={() => load(cat, meta.nextBefore)}>Show more</Button></div>}
-  </div>
+  </section>
 }
 
 export default function Admin() {
@@ -258,12 +335,10 @@ export default function Admin() {
   const [usersErr, setUsersErr] = useState(null)   // why the last load failed, until one succeeds
   const [invites, setInvites] = useState(null)
   const [inviteOnly, setInviteOnly] = useState(false)
-  const [tick, setTick] = useState(0)          // the ↻ button; the activity log listens to it
+  const [tick, setTick] = useState(0)          // the refresh button; the activity log listens to it
 
-  // A failed load, or an answer without a list, used to leave the page on "Loading…" for good —
-  // with a toast every 15 seconds from the poll, or with nothing at all when the answer was
-  // someone else's page. It says so where the list would be instead, and the poll (or ↻) keeps
-  // trying; a list that did load stays up, marked as the last one that came through.
+  // A failed load, or an answer without a list, says so where the list would be; the poll (or
+  // refresh) keeps trying, and a list that did load stays up, marked as the last one through.
   const loadUsers = () => api('/api/admin/users')
     .then(d => {
       if (!Array.isArray(d?.users)) throw new Error('The server answered without a list of users.')
@@ -271,67 +346,53 @@ export default function Admin() {
     })
     .catch(e => setUsersErr(e.message || 'Failed to load'))
   const loadInvites = () => api('/api/admin/invites').then(d => setInvites(d.invites)).catch(() => {})
-  // poll every 15s so the "training now" section stays live without a manual refresh
-  useEffect(() => { if (!user?.admin) return; loadUsers(); loadInvites(); const iv = setInterval(loadUsers, 15000); return () => clearInterval(iv) }, [])
+  const reload = () => { loadUsers(); loadInvites() }
+  // poll every 15s so "training now" stays live without a manual refresh
+  useEffect(() => { if (!user?.admin) return; reload(); const iv = setInterval(loadUsers, 15000); return () => clearInterval(iv) }, [])
   if (!user?.admin) return null
 
   const openUser = id => openSheet(close => <UserDetail id={id} onChanged={loadUsers} close={close} />)
-  const liveUsers = (users || []).filter(u => u.live)
-  const activeCount = (users || []).filter(u => u.lastSync && Date.now() - u.lastSync < 7 * 86400000).length
-  const disabledCount = (users || []).filter(u => u.disabled).length
+  const live = (users || []).filter(u => u.live)
+  const active = (users || []).filter(u => u.lastSync && Date.now() - u.lastSync < 7 * 86400000).length
+  const n = users?.length || 0
+  const sub = users ? `${n} ${n === 1 ? 'user' : 'users'} · ${active} active this week · sign-up ${inviteOnly ? 'by invite only' : 'open'}`
+    : usersErr ? 'Could not load' : 'Loading…'
 
-  return <div className="narrow">
+  return <div className="narrow adm-page">
     <div className="hdr">
       <button className="iconbtn" onClick={() => nav('/settings/account')} aria-label="Back"><Icon name="chevronLeft" /></button>
-      <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>Admin</h1>
-        <div className="sub">{users ? users.length + ' users · ' + activeCount + ' active this week' : usersErr ? 'Could not load' : 'Loading…'}</div></div>
-      <button className="iconbtn" onClick={() => { loadUsers(); loadInvites(); setTick(n => n + 1) }} aria-label="refresh">↻</button>
-    </div>
-    <div className="adm-intro">
-      Everything about running this instance: who uses it, how they get in, and what has happened on it. Nothing here shows anyone's training data beyond counts.
+      <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>Admin</h1><div className="sub">{sub}</div></div>
+      <button className="iconbtn" onClick={() => { reload(); setTick(x => x + 1) }} aria-label="refresh"><Icon name="reset" /></button>
     </div>
 
-    {usersErr && <div className="card" role="alert" style={{ borderColor: 'var(--red)' }}>
+    {usersErr && <div className="card adm-sec" role="alert" style={{ borderColor: 'var(--red)' }}>
       <div className="row between"><h2 style={{ margin: 0 }}>{users ? 'The last update failed' : 'Could not load the users'}</h2>
         <Button size="sm" icon="reset" onClick={loadUsers}>Try again</Button></div>
-      <div className="adm-lead" style={{ marginBottom: 0 }}>
-        {usersErr} {users ? 'The list below is the last one that loaded.' : 'It tries again every 15 seconds.'}
-      </div>
+      <div className="adm-note">{usersErr} {users ? 'The list below is the last one that loaded.' : 'It tries again every 15 seconds.'}</div>
     </div>}
 
-    <div className="tiles" style={{ marginBottom: 12 }}>
-      <div className="tile"><div className="l">Users</div><div className="v">{users ? users.length : '–'}</div></div>
-      <div className="tile"><div className="l">Training now</div><div className="v" style={{ color: liveUsers.length ? 'var(--acc)' : undefined }}>{users ? liveUsers.length : '–'}</div></div>
-      <div className="tile"><div className="l">Active 7 days</div><div className="v">{users ? activeCount : '–'}</div></div>
-      <div className="tile"><div className="l">Disabled</div><div className="v">{users ? disabledCount : '–'}</div></div>
-    </div>
-
-    {liveUsers.length > 0 && <div className="card" style={{ borderColor: 'var(--acc)' }}>
-      <h2 className="row" style={{ margin: '0 0 2px', gap: 6 }}><Icon name="dot" style={{ fontSize: 10, color: 'var(--green)' }} />Training now</h2>
-      <div className="adm-lead">Sessions running at this moment. Tap a name for details.</div>
-      {liveUsers.map(u => <div key={u.id} className="row between" style={{ padding: '8px 2px', borderBottom: 'var(--hair) solid var(--sep)' }} onClick={() => openUser(u.id)}>
-        <div><div className="small" style={{ fontWeight: 600 }}>{u.name}</div>
-          <div className="dim" style={{ fontSize: '.72rem' }}>{u.live.name} · exercise {u.live.exIdx} of {u.live.exTotal} · {u.live.setsDone}/{u.live.setsTotal} sets</div></div>
-        <span className="adm-pill acc">{dur(Date.now() - u.live.startedAt)}</span>
-      </div>)}
-    </div>}
-
-    <InvitesCard invites={invites} reload={loadInvites} inviteOnly={inviteOnly} />
-
-    <div className="card">
-      <h2 style={{ margin: 0 }}>Users</h2>
-      <div className="adm-lead">Everyone with a profile on this instance. Tap one to see their activity, to disable the account (nothing is deleted) or to delete it with all their data for good.</div>
-      <div className="list">
-        {(users || []).map(u => <div key={u.id} className="item" onClick={() => openUser(u.id)} style={u.disabled ? { opacity: .55 } : null}>
-          <div className="grow"><div className="tt">{u.live && <Icon name="dot" style={{ fontSize: 9, color: 'var(--green)', display: 'inline-block', marginInlineEnd: 5 }} />}{u.name} {u.admin && <span className="adm-pill acc" style={{ marginInlineStart: 4 }}>admin</span>}{u.disabled && <span className="adm-pill bad" style={{ marginInlineStart: 4 }}>disabled</span>}</div>
-            <div className="ss">{u.live ? 'training now · ' + u.live.name : u.workouts + ' workouts' + (u.lastWorkout ? ' · last ' + fmtDate(u.lastWorkout) : '') + ' · last sync ' + rel(u.lastSync)}</div>
-            {u.email && <div className="ss" title="sign-in e-mail">{u.email}</div>}</div>
-          {u.hasPush && <Icon name="bell" title="push notifications on" style={{ fontSize: 15, color: 'var(--label-3)' }} />}<Icon name="chevronRight" className="chev" />
-        </div>)}
-        {users && !users.length && <div className="adm-empty">No users yet.</div>}
+    <div className="adm-cols">
+      <div>
+        <AddFriend inviteOnly={inviteOnly} onAdded={reload} />
+        <InviteList invites={invites} reload={loadInvites} />
+      </div>
+      <div>
+        <section className="card adm-sec">
+          <h2>People <span className="adm-count">{live.length ? live.length + ' training now' : ''}</span></h2>
+          <div className="list">
+            {(users || []).map(u => <div key={u.id} className={'item' + (u.disabled ? ' adm-off' : '')} {...tappable(() => openUser(u.id))}>
+              <div className="grow"><div className="tt">{u.live && <span className="adm-live" aria-label="training now" />}{u.name}
+                {u.admin && <span className="adm-pill">admin</span>}{u.disabled && <span className="adm-pill bad">disabled</span>}</div>
+                <div className="ss">{u.live ? 'Training now · ' + u.live.name + ' · ' + dur(Date.now() - u.live.startedAt)
+                  : u.workouts + ' workouts · last seen ' + rel(u.lastSync)}</div>
+                {u.email && <div className="ss" title="sign-in e-mail">{u.email}</div>}</div>
+              <Icon name="chevronRight" className="chev" />
+            </div>)}
+            {users && !users.length && <div className="adm-empty">Nobody yet. Add a friend to get started.</div>}
+          </div>
+        </section>
+        <AuditCard tick={tick} />
       </div>
     </div>
-
-    <div style={{ marginTop: 14 }}><AuditCard tick={tick} /></div>
   </div>
 }
