@@ -3,6 +3,9 @@
 // (import.meta.glob lazy
 // loads, the React subscription hook) live in i18n.js and re-export from here.
 
+// The languages GymBro offers today. LANGS keeps every pack so the others can come back.
+export const ACTIVE_LANGS = ['th', 'en']
+
 export const LANGS = {
   en: 'English', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
   it: 'Italiano', pt: 'Português (Portugal)', 'pt-BR': 'Português (Brasil)', pl: 'Polski',

@@ -19,7 +19,7 @@ import { queueOf } from '../lib/queue.js'
 import { api, webauthnOK, passkeyRegister, passkeyError, IS_ANDROID } from '../lib/api.js'
 import { pushSupported, enablePush, disablePush, sendTestPush, syncPushSubscription } from '../lib/push.js'
 import { wakeLockSupported } from '../lib/wakelock.js'
-import { t, tn, LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, baseLang, dateLocale } from '../lib/i18n.js'
+import { t, tn, LANGS, ACTIVE_LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, baseLang, dateLocale } from '../lib/i18n.js'
 import { effectiveLang } from '../lib/default-lang.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
@@ -637,8 +637,8 @@ export default function Settings({ page = null, find = null, via = null }) {
         <SelectRow
           icon="globe" iconTint="var(--blue)" title={t('Language')}
           value={lang} onChange={v => update(s => { s.lang = v; s.langAuto = false })}
-          options={Object.entries(LANGS).map(([k, name]) => ({
-            value: k, label: name,
+          options={ACTIVE_LANGS.map(k => ({
+            value: k, label: LANGS[k],
             subtitle: INSTR_LANGS.includes(k) ? null : t("Exercise instructions aren't translated into this language yet, so they stay in English."),
           }))}
         />

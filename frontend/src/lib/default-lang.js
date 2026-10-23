@@ -14,9 +14,10 @@
 // languages — and the state is synced: a derived language stored in it would be pushed by one
 // device, pulled by the other, re-derived there and pushed back, round after round. `lang` is
 // only written when someone picks one in Settings, which also clears the mark.
-import { LANGS } from './i18n-core.js'
+import { ACTIVE_LANGS } from './i18n-core.js'
 
-const KEYS = Object.keys(LANGS)
+// Only the languages offered today: a German browser must not open in a hidden pack.
+const KEYS = ACTIVE_LANGS
 
 /** A language tag ('pt-BR', 'pt_br', 'de-AT', 'en-US') as one of LANGS' keys, or null. */
 export function matchLocale(tag) {

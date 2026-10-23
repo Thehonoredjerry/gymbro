@@ -34,23 +34,23 @@ describe('instance default language', () => {
     expect(shown()).toBe('en')   // the browser's English before the config
     const before = clone(useStore.getState().S)
 
-    api.mockResolvedValueOnce({ invite_only: false, allow_guest: true, default_lang: 'pt-BR' })
+    api.mockResolvedValueOnce({ invite_only: false, allow_guest: true, default_lang: 'th' })
     await useStore.getState().refreshConfig()
-    expect(shown()).toBe('pt-BR')
+    expect(shown()).toBe('th')
     expect(useStore.getState().S).toEqual(before)
   })
 
   it('the next boot uses the default this device last saw, before the config answers', async () => {
-    nav(['de-DE'])
-    api.mockResolvedValueOnce({ invite_only: false, default_lang: 'pt-BR' })
+    nav(['en-US'])
+    api.mockResolvedValueOnce({ invite_only: false, default_lang: 'th' })
     await useStore.getState().refreshConfig()
     useStore.setState({ S: freshState(), config: null })
-    expect(shown()).toBe('pt-BR')   // not the browser's German first
+    expect(shown()).toBe('th')   // not the browser's English first
     // An instance known to have none: the browser's language at once.
     api.mockResolvedValueOnce({ invite_only: false })
     await useStore.getState().refreshConfig()
     useStore.setState({ config: null })
-    expect(shown()).toBe('de')
+    expect(shown()).toBe('en')
   })
 
   it('a device that never reached a server follows the browser at once', () => {
@@ -60,20 +60,20 @@ describe('instance default language', () => {
   })
 
   it('without DEFAULT_LANG a fresh copy follows the browser when the app speaks it', () => {
-    nav(['de-DE', 'en'])
+    nav(['th-TH', 'en'])
     useStore.setState({ S: freshState(), config: { invite_only: false, allow_guest: true } })
-    expect(shown()).toBe('de')
+    expect(shown()).toBe('th')
   })
 
   it('an existing copy with lang "en" and no mark is left in English', () => {
     nav(['de-DE'])
-    useStore.setState({ S: { ...clone(DEF), lang: 'en' }, config: { default_lang: 'pt-BR' } })
+    useStore.setState({ S: { ...clone(DEF), lang: 'en' }, config: { default_lang: 'th' } })
     expect(shown()).toBe('en')
   })
 
   it('a language picked in Settings wins over DEFAULT_LANG from then on', () => {
-    useStore.setState({ S: freshState(), config: { default_lang: 'pt-BR' } })
-    expect(shown()).toBe('pt-BR')
+    useStore.setState({ S: freshState(), config: { default_lang: 'th' } })
+    expect(shown()).toBe('th')
     // What the Settings picker does.
     useStore.getState().update(s => { s.lang = 'en'; s.langAuto = false })
     expect(shown()).toBe('en')
