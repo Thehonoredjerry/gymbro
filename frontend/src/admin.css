@@ -71,106 +71,91 @@
 .adm-page .card.adm-sec h2{font-size:17px;font-weight:650;color:var(--label);text-transform:none;letter-spacing:-.012em}
 .adm-page .chip{text-transform:none}
 
-/* ---------------------------------------------------------------- glass theme --------------
-   The admin page is a tool, not the app: graphite and frost instead of dusk indigo and mango.
-   The tokens are re-pointed on :root while the page is open (Admin.jsx sets data-adm), so the
-   sheets it opens (a user's detail, confirmations) wear the same theme. Colour is left only
-   where it means something: green for training now, red for danger. This file can load before
-   index.css, so the overrides out-rank its :root[data-accent] and plain selectors rather than
+/* --------------------------------------------------------- black and white theme ----------
+   The admin website is an operator's tool, not the app: black, white and greys only, flat
+   panels with a hairline edge, compact type. Selected is white with black text. Colour stays
+   only where it means something: green for training now, red for danger. The tokens are
+   re-pointed on :root while the page is open (Admin.jsx / AdminLogin.jsx set data-adm), so the
+   sheets the panel opens wear it too, and it is the same in the app's light and dark settings.
+   This file can load before index.css, so the selectors out-rank its :root rules rather than
    relying on order; !important only on the accent, which a custom accent sets inline. */
-:root[data-adm][data-adm]{
-  --bg:#0d0f12;
-  --surface:rgba(255,255,255,.055);
-  --surface-2:rgba(255,255,255,.085);
-  --surface-3:rgba(255,255,255,.07);
-  --label:#eef0f3;
-  --label-2:rgba(238,240,243,.74);
-  --label-3:rgba(238,240,243,.56);
-  --sep:rgba(255,255,255,.11);
-  --acc:#eef0f3 !important; --acc-2:#c9ccd2 !important; --on-acc:#0d0f12 !important;
-  --acc-soft:rgba(255,255,255,.09); --acc-text:#eef0f3;
-  --glass-edge:rgba(255,255,255,.10);
-  --glass-shine:rgba(255,255,255,.07);
-  --glass-shadow:0 1px 1px rgba(0,0,0,.25),0 12px 32px -8px rgba(0,0,0,.45);
-  --glass-solid:#17191d;
-  --atmos:
-    radial-gradient(60vmax 45vmax at 12% -8%,rgba(132,146,166,.30),transparent 62%),
-    radial-gradient(50vmax 40vmax at 95% 18%,rgba(168,160,150,.16),transparent 60%),
-    radial-gradient(70vmax 50vmax at 50% 110%,rgba(96,110,128,.22),transparent 65%);
-}
+:root[data-adm][data-adm],
 :root[data-adm][data-adm][data-theme="light"]{
-  --bg:#eceef1;
-  --surface:rgba(255,255,255,.58);
-  --surface-2:rgba(20,23,28,.055);
-  --surface-3:rgba(20,23,28,.06);
-  --label:#14171c;
-  --label-2:rgba(20,23,28,.72);
-  --label-3:rgba(20,23,28,.58);
-  --sep:rgba(20,23,28,.10);
-  --acc:#14171c !important; --acc-2:#2b3038 !important; --on-acc:#fff !important;
-  --acc-soft:rgba(20,23,28,.07); --acc-text:#14171c;
-  --glass-edge:rgba(255,255,255,.75);
-  --glass-shine:rgba(255,255,255,.6);
-  --glass-shadow:0 1px 2px rgba(20,23,28,.06),0 14px 36px -12px rgba(20,23,28,.18);
-  --glass-solid:#f7f8fa;
-  --atmos:
-    radial-gradient(60vmax 45vmax at 10% -10%,rgba(160,176,198,.55),transparent 62%),
-    radial-gradient(50vmax 40vmax at 96% 16%,rgba(214,204,192,.50),transparent 60%),
-    radial-gradient(70vmax 50vmax at 50% 112%,rgba(176,188,204,.45),transparent 65%);
+  color-scheme:dark;
+  --bg:#0a0a0a;
+  --bg-el:#0f0f0f;
+  --surface:#121212;
+  --surface-2:#1c1c1c;
+  --surface-3:#1c1c1c;
+  --label:#f5f5f5;
+  --label-2:#a3a3a3;           /* 7.6:1 on the panels */
+  --label-3:#8a8a8a;           /* 5.5:1 — still body-text contrast */
+  --sep:#262626;
+  --sep-op:#262626;
+  --line-strong:#3a3a3a;
+  --acc:#fafafa !important; --acc-2:#d4d4d4 !important; --on-acc:#0a0a0a !important;
+  --acc-soft:#1c1c1c; --acc-text:#f5f5f5;
+  --r-card:14px;
+  --font-display:var(--font-body);
+  --font-body:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
 }
-:root[data-adm]{background-color:var(--bg);background-image:var(--atmos);background-attachment:fixed}
-:root[data-adm] body{background:transparent}
-:root[data-adm] #tabbar{background:color-mix(in srgb,var(--glass-solid) 72%,transparent);border-top-color:var(--sep)}
-:root[data-adm] ::selection{background:color-mix(in srgb,var(--label) 22%,transparent)}
+:root[data-adm]{background:var(--bg)}
+:root[data-adm] body{background:var(--bg)}
+:root[data-adm] ::selection{background:#f5f5f5;color:#0a0a0a}
+:root[data-adm]{scrollbar-color:#3a3a3a transparent}
 
-/* the frosted panel: blur what is behind, a hairline edge and a lit top edge for the light source */
-:root[data-adm] .adm-page .card,
-:root[data-adm] .sheet{
-  background:var(--surface);
-  -webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);
-  box-shadow:inset 0 0 0 1px var(--glass-edge),inset 0 1px 0 var(--glass-shine),var(--glass-shadow);
-}
-:root[data-adm] .adm-page .card{border-radius:18px;padding:18px}
-:root[data-adm] .sheet{background:color-mix(in srgb,var(--glass-solid) 80%,transparent)}
+/* panels: flat, one hairline */
+:root[data-adm] :is(.adm-page,.adm-login) .card,:root[data-adm] .sheet{background:var(--surface);box-shadow:inset 0 0 0 1px var(--sep)}
+:root[data-adm] .adm-page .card{border-radius:14px;padding:16px}
+:root[data-adm] .adm-page .card.adm-sec h2{font-size:14px;font-weight:600;letter-spacing:-.005em;margin-bottom:14px}
+:root[data-adm] .hdr h1{font-size:26px;font-weight:650;letter-spacing:-.025em}
+:root[data-adm] .hdr .sub{font-size:13px;color:var(--label-2)}
 
-/* rows inside a panel are part of it, not panels of their own */
-:root[data-adm] .adm-page .card .item{background:transparent;border-radius:12px;margin:0 -8px;padding:10px 8px;width:calc(100% + 16px)}
+/* small counts and states as pills, labels as small tracked capitals */
+:root[data-adm] .adm-count{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--surface-2);font-size:11.5px;font-weight:500;color:var(--label-2);letter-spacing:0}
+:root[data-adm] .adm-count:empty{display:none}
+:root[data-adm] .adm-pill{border-radius:99px;padding:1px 8px;background:var(--surface-2);color:var(--label-2);box-shadow:inset 0 0 0 1px var(--sep)}
+:root[data-adm] .adm-pill.bad{background:transparent;color:#ff6b61;box-shadow:inset 0 0 0 1px color-mix(in srgb,#ff6b61 45%,transparent)}
+:root[data-adm] .adm-pill.acc{background:var(--label);color:var(--bg);box-shadow:none}
+:root[data-adm] .adm-field>label,:root[data-adm] .adm-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--label-2)}
+:root[data-adm] .adm-opt{text-transform:none;letter-spacing:0;font-weight:400}
+
+/* rows inside a panel are part of it */
 :root[data-adm] .adm-page .card .list{gap:0}
-:root[data-adm] .adm-page .card .item+.item{border-top:var(--hair) solid var(--sep);border-start-start-radius:0;border-start-end-radius:0}
-:root[data-adm] .adm-page .chip:not(.on){background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--sep)}
+:root[data-adm] .adm-page .card .item{background:transparent;border-radius:10px;margin:0 -8px;padding:10px 8px;width:calc(100% + 16px);min-height:56px}
+:root[data-adm] .adm-page .card .item+.item{border-top:1px solid var(--sep);border-start-start-radius:0;border-start-end-radius:0}
+:root[data-adm] .adm-page .card .item .tt{font-size:14.5px;font-weight:500}
+:root[data-adm] .adm-page .card .item .ss{font-size:12.5px}
+:root[data-adm] .adm-tr{border-bottom-color:var(--sep)}
 @media (hover:hover){
-  :root[data-adm] .adm-page .card .item:hover{background:var(--surface-2)}
-  :root[data-adm] .adm-iconbtn:hover{background:var(--surface-2)}
+  :root[data-adm] .adm-page .card .item:hover,:root[data-adm] .adm-iconbtn:hover,:root[data-adm] .iconbtn:hover{background:var(--surface-2)}
+  :root[data-adm] .btn:not(.primary):hover{background:var(--surface-2)}
+  :root[data-adm] .btn.primary:hover{background:#e5e5e5}
 }
 :root[data-adm] .adm-page .card .item:active{background:var(--surface-2)}
 
-:root[data-adm] .adm-page .field,:root[data-adm] .sheet .field{
-  background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--sep);border-radius:12px
-}
-:root[data-adm] .adm-page .field:focus,:root[data-adm] .sheet .field:focus{box-shadow:inset 0 0 0 1.5px var(--label)}
-:root[data-adm] .seg-sel{background:color-mix(in srgb,var(--glass-solid) 70%,var(--label) 10%);box-shadow:inset 0 0 0 1px var(--glass-edge),0 2px 6px rgba(0,0,0,.18)}
-:root[data-adm] .btn.primary{box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 6px 16px -6px rgba(0,0,0,.4)}
-:root[data-adm] .adm-msg,:root[data-adm] .adm-code{box-shadow:inset 0 0 0 1px var(--sep)}
-:root[data-adm] .adm-pill.acc{background:var(--surface-2);color:var(--label)}
+/* controls: square-ish, hairline, white when chosen */
+:root[data-adm] .btn{border-radius:10px;font-size:15px;font-weight:600;min-height:44px;padding:10px 16px}
+:root[data-adm] .btn:not(.primary):not(.ghost):not(.danger){background:transparent;color:var(--label);font-weight:500;box-shadow:inset 0 0 0 1px var(--line-strong)}
+:root[data-adm] .btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;border-radius:8px}
+:root[data-adm] .btn.ghost{color:var(--label-2);font-weight:500}
+:root[data-adm] .iconbtn{background:transparent;box-shadow:inset 0 0 0 1px var(--sep);border-radius:10px;width:40px;height:40px}
+:root[data-adm] .adm-iconbtn{box-shadow:none}
+:root[data-adm] .field{background:var(--bg);box-shadow:inset 0 0 0 1px var(--sep);border-radius:10px;font-size:15px;padding:11px 13px}
+:root[data-adm] .field:focus{box-shadow:inset 0 0 0 1px var(--label)}
+:root[data-adm] .seg{background:var(--bg);box-shadow:inset 0 0 0 1px var(--sep);border-radius:10px;padding:3px}
+:root[data-adm] .seg-sel{background:var(--label);border-radius:7px;box-shadow:none;top:3px;bottom:3px;inset-inline-start:3px;width:calc((100% - 6px)/var(--n))}
+:root[data-adm] .seg button{font-size:13.5px;color:var(--label-2);min-height:36px;transition:color var(--fast)}
+:root[data-adm] .seg button[aria-checked="true"],:root[data-adm] .seg button[aria-pressed="true"],:root[data-adm] .seg button[aria-selected="true"],:root[data-adm] .seg button.on{color:var(--bg);font-weight:600}
+:root[data-adm] .chip{background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--label-2);font-size:13px}
+:root[data-adm] .chip.on{background:var(--label);color:var(--bg);box-shadow:none}
+:root[data-adm] .adm-msg,:root[data-adm] .adm-code{background:var(--bg);box-shadow:inset 0 0 0 1px var(--sep);border-radius:10px}
+:root[data-adm] #tabbar{background:var(--bg-el);border-top-color:var(--sep)}
 
 /* the keyboard sees where it is */
-:root[data-adm] :is(button,a,[role="button"],textarea,.item):focus-visible{outline:2px solid var(--label);outline-offset:2px;border-radius:10px}
+:root[data-adm] :is(button,a,[role="button"],textarea,.item):focus-visible{outline:2px solid var(--label);outline-offset:2px}
 
-/* thin scrollbars in the palette */
-:root[data-adm]{scrollbar-color:color-mix(in srgb,var(--label) 26%,transparent) transparent}
-
-/* no blur available, or the person asked for less transparency: the same panels, opaque */
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-  :root[data-adm] .adm-page .card,:root[data-adm] .sheet{background:var(--glass-solid)}
-}
-/* Asked for less transparency (Windows "Transparency effects" off, for one): the same frosted
-   look, but the panels are nearly opaque so nothing behind them competes with the text. */
-@media (prefers-reduced-transparency:reduce){
-  :root[data-adm] .adm-page .card{background:color-mix(in srgb,var(--glass-solid) 88%,transparent)}
-  :root[data-adm] #tabbar{background:var(--glass-solid)}
-}
-
-/* the admin website's sign-in (views/AdminLogin.jsx): one frosted panel, centred */
+/* the admin website's sign-in (views/AdminLogin.jsx): one panel, centred */
 .adm-login{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
 :root[data-adm] .adm-login .adm-login-card{width:100%;max-width:380px;padding:28px 24px 24px;margin:0}
 .adm-login-mark{

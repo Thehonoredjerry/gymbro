@@ -194,7 +194,7 @@ function AddFriend({ inviteOnly, onAdded }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
   const [made, setMade] = useState(null)
-  const site = location.origin
+  // The website is only the admin panel (lib/admin-site.js): friends are sent to the phone app.
   const run = async (ev, call) => {
     ev.preventDefault()
     if (busy) return
@@ -207,7 +207,7 @@ function AddFriend({ inviteOnly, onAdded }) {
     return {
       title: 'Invite code ready' + (invite.note ? ' for ' + invite.note : ''),
       lines: [['Code', invite.code]],
-      message: `Join me on GymBro: ${site}\nTap "Create account", pick a name and a password, and enter this invite code:\n${invite.code}`,
+      message: `Join me on GymBro! Open the GymBro app, tap "Create account", pick a name and a password, and enter this invite code:\n${invite.code}`,
     }
   })
   const create = ev => run(ev, async () => {
@@ -218,7 +218,7 @@ function AddFriend({ inviteOnly, onAdded }) {
     return {
       title: 'Account created for ' + user.name,
       lines: [['Name', user.name], ['Password', pw]],
-      message: `Your GymBro account is ready: ${site}\nName: ${user.name}\nPassword: ${pw}\nSign in, then change the password in Settings, Account.`,
+      message: `Your GymBro account is ready. Open the GymBro app, tap "Sign in" and use:\nName: ${user.name}\nPassword: ${pw}\nThen change the password in Settings, Account.`,
     }
   })
   const pick = m => { setMode(m); setErr(null) }

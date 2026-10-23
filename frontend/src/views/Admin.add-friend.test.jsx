@@ -66,7 +66,7 @@ describe('Add a friend', () => {
     const out = host.querySelector('.adm-new')
     expect(out.textContent).toContain('AB12CD34EF56AB78')
     expect(out.querySelector('textarea').value).toContain('AB12CD34EF56AB78')
-    expect(out.querySelector('textarea').value).toContain(location.origin)
+    expect(out.querySelector('textarea').value).toContain('GymBro app')   // the website is only the admin panel
   })
 
   it('creates an account directly and shows the sign-in details once', async () => {
