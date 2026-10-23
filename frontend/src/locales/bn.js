@@ -2345,4 +2345,8 @@ export default {
   'Turn on': 'Turn on',
   'optional': 'optional',
   'Enter reps first': 'Enter reps first',
+  'Background': 'Background',
+  'Dusk': 'Dusk',
+  'Black': 'Black',
+  'Black & white': 'Black & white',
 }

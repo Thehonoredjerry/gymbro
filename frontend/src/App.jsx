@@ -4,7 +4,7 @@ import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { bindUI } from './components/ui.jsx'
 import { setWeightDecimals } from './lib/format.js'
-import { accentValue, applyAccent } from './lib/accent.js'
+import { accentValue, applyAccent, applyPalette, paletteKey, themeColor } from './lib/accent.js'
 import { setLang, useLang, baseLang } from './lib/i18n.js'
 import { effectiveLang } from './lib/default-lang.js'
 import { setPlayOnSilent, setVibrate, setAlarmBuzzer } from './lib/sound.js'
@@ -59,12 +59,13 @@ const resolveTheme = theme => theme === 'light' || theme === 'dark'
   ? theme
   : (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 
-function applyPrefs(theme, accent) {
+function applyPrefs(theme, accent, palette) {
   const de = document.documentElement
   de.dataset.theme = resolveTheme(theme)
   applyAccent(de, accent, de.dataset.theme)
+  applyPalette(de, palette)
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.content = de.dataset.theme === 'light' ? '#f5f2fc' : '#15122a'
+  if (meta) meta.content = themeColor(palette, de.dataset.theme)
   if (MOBILE) setSystemBarsLight(de.dataset.theme === 'light')
 }
 
@@ -100,17 +101,18 @@ function Shell() {
   }, [loc.pathname, loc.search, S.active?.editingWorkoutId, navigate])
   // A preset key, or the user's own colour as '#rrggbb' (lib/accent.js), already checked.
   const accent = accentValue(S)
-  useEffect(() => { applyPrefs(S.theme, accent) }, [S.theme, accent])
+  const palette = paletteKey(S)
+  useEffect(() => { applyPrefs(S.theme, accent, palette) }, [S.theme, accent, palette])
   // 'system' needs to react live if the OS theme flips while the app is open, not just on
   // the next mount — a fixed 'dark'/'light' choice never re-fires this since matchMedia
   // isn't consulted for those.
   useEffect(() => {
     if (S.theme !== 'system' || !window.matchMedia) return
     const mql = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => applyPrefs(S.theme, accent)
+    const onChange = () => applyPrefs(S.theme, accent, palette)
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
-  }, [S.theme, accent])
+  }, [S.theme, accent, palette])
   // A profile that never picked a language follows the instance default or the browser (#303) —
   // worked out here, on this device, and never written into the synced state (lib/default-lang.js).
   const config = useStore(s => s.config)

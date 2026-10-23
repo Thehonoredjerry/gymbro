@@ -30,7 +30,7 @@ import { syncMedia, fetchToStore } from '../lib/media-sync.js'
 import { getMediaStatus, subscribeMediaStatus, pendingRefCount } from '../lib/media-owed.js'
 import { limitsFrom, fmtMB, MB } from '../lib/media-limits.js'
 import { setRestAccent } from '../lib/rest-alert.js'
-import { CUSTOM, accentKey, adjustedIn, applyAccent, cleanHex, inkOn, isGrey } from '../lib/accent.js'
+import { CUSTOM, accentKey, adjustedIn, applyAccent, cleanHex, inkOn, isGrey, paletteKey } from '../lib/accent.js'
 import { checkForUpdate, downloadAndInstall, fetchChecksum, RELEASES_PAGE, updateCheckOn } from '../lib/update.js'
 import { REST_MAX, REST_PAUSE_MIN, REST_PAUSE_MAX, fmtRest, fmtDuration } from '../lib/duration.js'
 import { starterPlanSheet, confirmSheet, importFromApp, importFromHevy, equipmentProfileSheet, plateInventorySheet, dumbbellInventorySheet, menuSheet } from '../sheets.jsx'
@@ -711,6 +711,15 @@ export default function Settings({ page = null, find = null, via = null }) {
             onChange={v => update(s => { s.theme = v })}
           />
         </Row>
+        {/* GymBro: the background itself, not only the accent (lib/accent.js applyPalette) */}
+        <Row icon="palette" iconTint="var(--grey)" title={t('Background')}>
+          <Segmented
+            className="seg-inline"
+            options={[{ value: 'dusk', label: t('Dusk') }, { value: 'black', label: t('Black') }]}
+            value={paletteKey(S)}
+            onChange={v => update(s => { s.palette = v })}
+          />
+        </Row>
         <div className="lrow" style={{ flexWrap: 'wrap', rowGap: 12, paddingBottom: 14 }}>
           <span className="lrow-i" style={{ '--tint': 'var(--purple)' }}><Icon name="palette" /></span>
           <span className="lrow-m"><span className="lrow-t">{t('Accent color')}</span></span>
@@ -1252,7 +1261,7 @@ function AccentSwatches({ S, update }) {
   return <>
     <div className="swatches" style={{ flexBasis: '100%', paddingInlineStart: 41 }}>
       {Object.entries(ACCENTS).map(([k, c]) => (
-        <button key={k} className={'swatch' + (key === k ? ' on' : '')}
+        <button key={k} className={'swatch' + (k === 'mono' ? ' swatch-mono' : '') + (key === k ? ' on' : '')}
           style={{ background: c }} onClick={() => pickPreset(k)} aria-label={t(ACCENT_NAMES[k] || k)} />
       ))}
       {!hasInput

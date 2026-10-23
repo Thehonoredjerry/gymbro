@@ -2277,4 +2277,8 @@ export default {
   'Turn on': 'เปิด',
   'optional': 'ไม่บังคับ',
   'Enter reps first': 'กรอกจำนวนครั้งก่อน',
+  'Background': 'พื้นหลัง',
+  'Dusk': 'ม่วงยามค่ำ',
+  'Black': 'ดำ',
+  'Black & white': 'ขาวดำ',
 }
