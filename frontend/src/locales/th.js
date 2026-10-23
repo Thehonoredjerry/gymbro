@@ -2264,4 +2264,10 @@ export default {
   'Platinum': 'แพลทินัม',
   'Diamond': 'ไดมอนด์',
   'Champion': 'แชมเปียน',
+  'Ranks': 'แรงค์',
+  '{0} / {1} XP': '{0} / {1} XP',
+  'Unranked — rank three exercises': 'ยังไม่มีแรงค์ — ทำแรงค์ให้ได้สามท่าก่อน',
+  'Log your body weight to get ranks': 'บันทึกน้ำหนักตัวเพื่อรับแรงค์',
+  'next tier at {0}': 'ขั้นถัดไปที่ {0}',
+  'Machine ranks are approximate — machines differ between gyms.': 'แรงค์ของเครื่องเป็นค่าประมาณ เพราะเครื่องแต่ละยิมไม่เหมือนกัน',
 }

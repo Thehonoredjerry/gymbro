@@ -2,7 +2,7 @@ import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
 import { EXIDX } from '../lib/exercises.js'
 import { fmtNum } from '../lib/format.js'
-import { LB_TO_KG } from '../lib/recovery.js'
+import { kgIn } from '../lib/ranks.js'
 import RankBadge, { rankName } from './RankBadge.jsx'
 import { Button } from './ui.jsx'
 
@@ -25,7 +25,7 @@ export default function RankUp({ ups, close }) {
         {u.kind === 'level' ? t('Level up!')
           : u.kind === 'overall' ? t('Overall rank')
           : <><span className={exerciseNameClass(EXIDX[u.exId])}>{EXIDX[u.exId] ? exerciseNameFor(EXIDX[u.exId]) : u.exId}</span>
-            {' · '}{t('Estimated 1RM')} {fmtNum(unit === 'lb' ? u.to.strengthKg / LB_TO_KG : u.to.strengthKg)} {unit}</>}
+            {' · '}{t('Estimated 1RM')} {fmtNum(kgIn(u.to.strengthKg, unit))} {unit}</>}
       </div>
     </div>)}
     <Button variant="primary" onClick={close}>{t('Continue')}</Button>

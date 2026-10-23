@@ -117,3 +117,6 @@ export function overallFromPoints(points) {
 }
 
 export const overallRank = (S, opts = {}) => overallFromPoints(allRanks(S, opts).map(r => r.points))
+
+/** A kg strength in the profile's display unit. */
+export const kgIn = (kg, unit) => (unit === 'lb' ? kg / LB_TO_KG : kg)

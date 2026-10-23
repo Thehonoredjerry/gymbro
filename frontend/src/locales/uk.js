@@ -2250,4 +2250,10 @@ export default {
   'Platinum': 'Platinum',
   'Diamond': 'Diamond',
   'Champion': 'Champion',
+  'Ranks': 'Ranks',
+  '{0} / {1} XP': '{0} / {1} XP',
+  'Unranked — rank three exercises': 'Unranked — rank three exercises',
+  'Log your body weight to get ranks': 'Log your body weight to get ranks',
+  'next tier at {0}': 'next tier at {0}',
+  'Machine ranks are approximate — machines differ between gyms.': 'Machine ranks are approximate — machines differ between gyms.',
 }

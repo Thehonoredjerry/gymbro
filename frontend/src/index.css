@@ -2183,3 +2183,6 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .rankup-row .rank-badge:last-child{animation:rankup-pop .6s cubic-bezier(.2,1.6,.4,1) both}
 .rankup-level{font-size:28px;font-weight:800;color:var(--acc-text);animation:rankup-pop .6s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes rankup-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.level-bar{height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin-top:6px}
+.level-bar>i{display:block;height:100%;background:var(--acc);border-radius:inherit}
+.rank-row{padding:8px 0;border-top:var(--hair) solid var(--sep)}

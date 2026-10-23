@@ -46,6 +46,8 @@ import { buildCompletedWorkout, sessionEnd } from './lib/finish-workout.js'
 import { refillAfter } from './lib/rotation.js'
 import { progressSnapshot, rankUps } from './lib/rankup.js'
 import RankUp from './components/RankUp.jsx'
+import RankBadge, { rankName } from './components/RankBadge.jsx'
+import { rankFor, kgIn } from './lib/ranks.js'
 import { isWarmupRow, hasCompletedWork } from './lib/workout-model.js'
 import { saveSessionAsRoutine } from './lib/session-routines.js'
 import { repeatSessionEntries } from './lib/session-repeat.js'
@@ -973,11 +975,14 @@ export function detailTags(ex) {
   return out
 }
 
+// Machines differ between gyms, so their ranks are approximate (GymBro ranks, lib/ranks.js).
+const MACHINE_EQ = new Set(['leverage machine', 'cable', 'smith machine', 'sled machine'])
 function ExerciseDetail({ ex, close }) {
   useLang() // the description and steps arrive in their own chunk the first time a sheet asks
   const st = useStore(s => s.S)
   const last = lastEntryFor(st, ex.id)
   const best = bestWeightFor(st, ex.id, currentDbLoad(st, ex.id))
+  const rank = rankFor(st, ex.id)
   const fav = isFav(st, ex.id)
   const flipFav = () => {
     let on = false
@@ -998,6 +1003,8 @@ function ExerciseDetail({ ex, close }) {
     </div>
     {descFor(ex) && <div className="exnote">{descFor(ex)}</div>}
     {best > 0 && <div className="small row" style={{ marginBottom: 6, gap: 5 }}><Icon name="trophy" style={{ fontSize: 14, color: 'var(--yellow)' }} />{t('Best:')} <b className="accent" style={{ whiteSpace: 'nowrap' }}>{fmtNum(best)} {st.unit}</b>{last ? ` · ${t('last')} ${fmtDate(last.d)}: ${last.sets.map(s => setLabel(ex.id, s, last.target, speedUnitOf(st))).join(', ')}` : ''}</div>}
+    {rank?.tier && <div className="small row" style={{ marginBottom: 6, gap: 6 }}><RankBadge tier={rank.tier} division={rank.division} size={22} />{rankName(rank)}{rank.nextKg != null && <span className="muted">· {t('next tier at {0}', fmtNum(kgIn(rank.nextKg, st.unit)) + ' ' + st.unit)}</span>}</div>}
+    {rank?.tier && MACHINE_EQ.has(ex.eq) && <div className="small muted" style={{ marginBottom: 6 }}>{t('Machine ranks are approximate — machines differ between gyms.')}</div>}
     <Button variant="primary" icon="plus" style={{ margin: '10px 0 4px' }} onClick={() => addToRoutineSheet(ex)}>{t('Add to my plan')}</Button>
     {last && <Button icon="history" style={{ marginTop: 4 }} onClick={() => exerciseHistorySheet(ex.id)}>{t('History')}</Button>}
     {isCustomEx(ex) && <div className="row" style={{ gap: 8, marginTop: 8 }}>
