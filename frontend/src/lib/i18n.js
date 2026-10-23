@@ -19,7 +19,6 @@ export {
 // lazy, so the production bundle ships English only until another language is selected.
 const localePacks = import.meta.glob('../locales/*.js')
 const instrPacks = import.meta.glob('../instr/*.js')
-const exerciseNamePacks = import.meta.glob('../exercise-names/*.js')
 const descPacks = import.meta.glob('../exercise-desc/*.js')
 
 // English steps and descriptions, plus the language's own descriptions where it has some: fetched
@@ -65,15 +64,11 @@ export async function setLang(l, showEn, enOnly) {
   lastShowEn = show
   lastEnOnly = only
   const base = baseLang(l)
-  let dict = {}, instr = null, exerciseNames = null
+  // GymBro translates the interface only: exercise names stay English, so no name pack loads.
+  let dict = {}, instr = null
   try { dict = base === 'en' ? {} : (await localePacks['../locales/' + base + '.js']()).default } catch (e) { dict = {} }
   try { instr = base === 'en' || !INSTR_LANGS.includes(base) ? null : (await instrPacks['../instr/' + base + '.js']()).default } catch (e) { instr = null }
-  try {
-    exerciseNames = base === 'en' || !EXERCISE_NAME_LANGS.includes(base)
-      ? null
-      : (await exerciseNamePacks['../exercise-names/' + base + '.js']()).default
-  } catch (e) { exerciseNames = null }
-  _setLangState(l, derivePack(l, dict), derivePack(l, instr), derivePack(l, exerciseNames), show, only)
+  _setLangState(l, derivePack(l, dict), derivePack(l, instr), null, show, only)
   if (detailsLoaded) loadDetails()
   document.documentElement.lang = l
   document.documentElement.dir = RTL_LANGS.has(l) ? 'rtl' : 'ltr'
