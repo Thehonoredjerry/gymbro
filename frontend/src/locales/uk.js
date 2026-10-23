@@ -2256,4 +2256,10 @@ export default {
   'Log your body weight to get ranks': 'Log your body weight to get ranks',
   'next tier at {0}': 'next tier at {0}',
   'Machine ranks are approximate — machines differ between gyms.': 'Machine ranks are approximate — machines differ between gyms.',
+  'Create account': 'Create account',
+  'Enter your body weight.': 'Enter your body weight.',
+  'Hi, {0}!': 'Hi, {0}!',
+  'Get a nudge when your rest is over.': 'Get a nudge when your rest is over.',
+  'Turn on': 'Turn on',
+  'optional': 'optional',
 }

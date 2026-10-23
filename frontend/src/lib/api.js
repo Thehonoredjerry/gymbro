@@ -331,6 +331,24 @@ export async function pairRedeem(serverBase, code, { probeMs = PROBE_MS } = {}) 
   return data
 }
 
+// The phone app's name-and-password sign-in against its built-in server (lib/server-url.js): like
+// pairRedeem, it talks straight to that server before any base is set, and the server hands the
+// app a bearer token (api/server.js appToken). A refusal keeps its status and `code` for
+// passwordError; no answer at all is explained the way pairing explains it.
+export async function passwordAt(serverBase, path, body, { probeMs = PROBE_MS } = {}) {
+  let data
+  try {
+    data = await request(serverBase + path, {
+      method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, accessFor(serverBase)), body: JSON.stringify(body)
+    }, TIMEOUT_GET_MS)
+  } catch (e) {
+    if (e && (e.status != null || e.code)) throw e
+    throw await whyUnreachable(serverBase, probeMs)
+  }
+  if (!data.token || !data.user) throw failure(t('The server answered with something other than GymBro data.'), 'bad-response', 200)
+  return data
+}
+
 const bufToB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 const b64uToBuf = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)).buffer
 

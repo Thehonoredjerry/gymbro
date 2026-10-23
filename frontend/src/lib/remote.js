@@ -6,7 +6,7 @@
 // server's RP_ID), so auth here is a short one-time code redeemed from an already signed-in
 // browser tab (Settings → "Pair the mobile app") for a bearer token — see api/server.js's
 // /api/pair/create + /api/pair/redeem.
-import { pairRedeem, setRemoteAuth } from './api.js'
+import { pairRedeem, passwordAt, setRemoteAuth } from './api.js'
 import { loadRemoteFile, saveRemoteFile } from './mobile.js'
 import { clearCfAccess } from './cf-access.js'
 
@@ -57,4 +57,14 @@ export async function connect(rawUrl, code) {
   setRemoteAuth(base, token)
   await saveRemoteFile({ mode: 'remote', base, token, user })
   return user
+}
+
+// The phone app's own sign-in (GymBro): name and password, or a new account with an invite code,
+// straight against the built-in server; saved like a pairing so boot() restores it.
+export async function signInWithPassword(base, { create, name, password, code }) {
+  const { token, user } = await passwordAt(base, create ? '/api/register/password' : '/api/login/password',
+    create ? { name, password, code: code || '' } : { name, password })
+  setRemoteAuth(base, token)
+  await saveRemoteFile({ mode: 'remote', base, token, user })
+  return { token, user }
 }

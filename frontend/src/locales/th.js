@@ -2270,4 +2270,10 @@ export default {
   'Log your body weight to get ranks': 'บันทึกน้ำหนักตัวเพื่อรับแรงค์',
   'next tier at {0}': 'ขั้นถัดไปที่ {0}',
   'Machine ranks are approximate — machines differ between gyms.': 'แรงค์ของเครื่องเป็นค่าประมาณ เพราะเครื่องแต่ละยิมไม่เหมือนกัน',
+  'Create account': 'สร้างบัญชี',
+  'Enter your body weight.': 'กรอกน้ำหนักตัวของคุณ',
+  'Hi, {0}!': 'สวัสดี {0}!',
+  'Get a nudge when your rest is over.': 'รับการแจ้งเตือนเมื่อหมดเวลาพัก',
+  'Turn on': 'เปิด',
+  'optional': 'ไม่บังคับ',
 }

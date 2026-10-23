@@ -19,7 +19,8 @@ import { countChanges, syncFingerprint } from '../lib/sync-changes.js'
 import { saveWorkoutEdit, deleteEditedWorkout } from '../lib/session-edit.js'
 import { appBase } from '../lib/app-base.js'
 import { linkTokenFromSearch, stripLinkFromUrl } from '../lib/device-link.js'
-import { loadRemote, chooseLocal, forgetRemote, connect, normalizeServerUrl, renewToken } from '../lib/remote.js'
+import { loadRemote, chooseLocal, forgetRemote, connect, normalizeServerUrl, renewToken, signInWithPassword } from '../lib/remote.js'
+import { BUILTIN_SERVER } from '../lib/server-url.js'
 import { loadCfAccess } from '../lib/cf-access.js'
 import { RTL_LANGS } from '../lib/i18n-core.js'
 import { DEFAULT_TEMPLATE_ID } from '../lib/structuralBalanceTemplates.js'
@@ -437,6 +438,19 @@ export const useStore = create((set, get) => {
     const next = { ...cur, ...patch }
     next.status = statusOf(next, get().user)
     if (Object.keys(next).some(k => (k === 'lastError' ? !sameError(next[k], cur[k]) : next[k] !== cur[k]))) set({ sync: next })
+  }
+  // A phone that just got a token (pairing or the built-in server's sign-in) adopts the account.
+  // The account first, the address after: a copy another account still owed is kept aside for
+  // it under the server it belongs to, not the one being paired.
+  const adoptPaired = async (user, base, ask) => {
+    get().setUser(user, { adopt: true })
+    if (keeping) { await keeping; keeping = null }
+    pairedBase = base
+    setSync({ server: pairedBase })
+    await get().refreshConfig()   // what this server offers (guest mode, media) — see boot()
+    await get().adoptProfile(ask)
+    await nativePersist(true)   // the file holds this account's copy before anything else can happen
+    set({ needsMobileOnboarding: false })
   }
   const isNetworkError = e => e && e.status == null   // fetch itself failed, or gave up: no response at all
   const refused = e => e?.status === 401 || e?.code === 'not-paired'
@@ -1763,16 +1777,13 @@ export const useStore = create((set, get) => {
     // account pairing again merges what the phone kept (adoptProfile).
     async connectToServer(url, code, ask) {
       const user = await connect(url, code)   // throws on a bad URL/expired code — caller shows it
-      // The account first, the address after: a copy another account still owed is kept aside
-      // for it under the server it belongs to, not the one being paired.
-      get().setUser(user, { adopt: true })
-      if (keeping) { await keeping; keeping = null }
-      pairedBase = normalizeServerUrl(url)
-      setSync({ server: pairedBase })
-      await get().refreshConfig()   // what this server offers (guest mode, media) — see boot()
-      await get().adoptProfile(ask)
-      await nativePersist(true)   // the file holds this account's copy before anything else can happen
-      set({ needsMobileOnboarding: false })
+      await adoptPaired(user, normalizeServerUrl(url), ask)
+    },
+    // The phone app's own sign-in against its built-in server (GymBro Welcome): name and password,
+    // or a new account with an invite. Afterwards exactly what a pairing does.
+    async signInToServer(opts, ask) {
+      const { user } = await signInWithPassword(BUILTIN_SERVER, opts)   // throws; Welcome words it
+      await adoptPaired(user, BUILTIN_SERVER, ask)
     },
     // Leaves remote mode and drops back to local-only, the way signOut does: never with changes
     // the server has not seen, unless `force` keeps them aside first. Same result as signOut;
