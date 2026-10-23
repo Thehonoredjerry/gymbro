@@ -231,3 +231,10 @@ export function updateRoutineFromEntry(routine, entries, idx) {
   }
   return found.changes
 }
+
+/**
+ * A routine as GymBro creates it: with no progression rule of its own it is stamped `prog: 'off'`,
+ * so it opens at exactly what was lifted last time and adds no weight until the lifter switches a
+ * rule on. A routine that brings its own rule (a starter 5×5, a shared plan) keeps it.
+ */
+export const withProgDefault = r => (r && !r.prog ? { ...r, prog: 'off' } : r)

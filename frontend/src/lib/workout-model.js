@@ -388,3 +388,6 @@ export function modeForEntry(entry, fallback = null) {
   if (targetMode) return targetMode
   return fallback == null ? modeForSet(source, target) : normalizeMode(fallback)
 }
+
+/** A rep set with no reps typed in yet cannot be ticked done; un-ticking always works. */
+export const needsReps = (set, mode) => mode === 'reps' && !set?.done && !(Number(set?.r) > 0)

@@ -1,4 +1,5 @@
 import { uid } from './format.js'
+import { withProgDefault } from './routines.js'
 import { modeOf, defaultConfig, isPerSide, entryRoutineId, setsFromRows } from './history.js'
 import { isSideSet, isWarmupRow } from './workout-model.js'
 
@@ -132,7 +133,7 @@ export function routineFromSession(session, name = session?.name, routines = [])
   const ex = groupIds(sessionEntries(session).filter(entry => entry?.sets?.length)
     .map(entry => copiedEntry(entry, byId.get(entryRoutineId(session, entry)))))
   if (!ex.length) throw new Error('no exercises')
-  return { id: uid(), name: String(name || 'Workout').trim() || 'Workout', ex }
+  return withProgDefault({ id: uid(), name: String(name || 'Workout').trim() || 'Workout', ex })
 }
 
 export function saveSessionAsRoutine(state, session, name) {

@@ -302,7 +302,7 @@ export function mergePlan(s, bundle, { schedule } = {}) {
       id: nid,
       name: r.name || t('Shared routine'),
       emoji: r.emoji,
-      ...(r.prog ? { prog: r.prog } : {}),
+      prog: r.prog || 'off',
       ...(r.excludeFromProgression === true ? { excludeFromProgression: true } : {}),
       ex: (r.ex || []).map(e => ({ ...e, id: exIdMap[e.id] || canonicalExId(e.id) }))
     })

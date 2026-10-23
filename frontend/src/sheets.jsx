@@ -66,6 +66,7 @@ import { workoutCardModel, layoutWorkoutCard, drawWorkoutCard, viewAspect, CARD_
 import { copyText } from './lib/clipboard.js'
 import { queueRemaining, pinState } from './lib/queue.js'
 import { DAY_NOTE_TAGS, DAY_NOTE_LABEL, DAY_NOTE_ICON, dayNoteOf, dayNoteLine, canNoteDay, withDayNote } from './lib/day-notes.js'
+import { withProgDefault } from './lib/routines.js'
 
 const S = () => useStore.getState().S
 const update = (...a) => useStore.getState().update(...a)
@@ -188,7 +189,7 @@ export function loadStarterPlan(planId, profile) {
     plan.routines.forEach(r => {
       const have = st.routines.find(x => x.name === r.name && sameLift(x, r))
       if (have) idOf[r.id] = have.id
-      else { st.routines.push(r); idOf[r.id] = r.id }
+      else { st.routines.push(withProgDefault(r)); idOf[r.id] = r.id }
     })
     plan.schedule.forEach(({ day, routineId }) => { st.week[day] = [idOf[routineId]] })
   })
@@ -1084,7 +1085,7 @@ function AddToRoutine({ ex, close }) {
     const isNew = rid === '_new'
     exConfigSheet(ex, null, cfg => {
       update(s => {
-        let r = isNew ? { id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] } : s.routines.find(x => x.id === rid)
+        let r = isNew ? withProgDefault({ id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] }) : s.routines.find(x => x.id === rid)
         if (isNew) s.routines.push(r)
         if (r) r.ex.push({ id: ex.id, ...cfg })
       })

@@ -369,3 +369,14 @@ describe('addSideCluster / removeSideClusterAt / setSideClusterAt', () => {
     expect(s.type).toBeUndefined()
   })
 })
+
+describe('needsReps', async () => {
+  const { needsReps } = await import('./workout-model.js')
+  it('blocks ticking an empty rep set, and only that', () => {
+    expect(needsReps({ w: 60, r: 0, done: false }, 'reps')).toBe(true)
+    expect(needsReps({ w: 0, r: '', done: false }, 'reps')).toBe(true)
+    expect(needsReps({ w: 60, r: 8, done: false }, 'reps')).toBe(false)
+    expect(needsReps({ w: 60, r: 0, done: true }, 'reps')).toBe(false)   // un-ticking is always allowed
+    expect(needsReps({ sec: 30, done: false }, 'time')).toBe(false)
+  })
+})

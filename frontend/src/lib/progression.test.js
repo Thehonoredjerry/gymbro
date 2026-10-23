@@ -118,7 +118,7 @@ describe('stallCount', () => {
 })
 
 describe('policyFor', () => {
-  it('keeps the app\'s long-standing behaviour as the default for reps work', () => {
+  it('keeps the app\x27s long-standing behaviour as the default for reps work', () => {
     expect(policyFor({ id: LIFT }, null, 'reps')).toBe('linear')
   })
   it('leaves timed and cardio work alone unless asked', () => {
@@ -405,7 +405,7 @@ describe('a loaded lift logged at 0 kg', () => {
   const noLoad = { '0857': 'wheel rollerout', '0271': 'crunch on a stability ball', '0653': 'push-up on a bosu ball', '0011': 'assisted hanging knee raise' }
   for (const [id, name] of Object.entries(noLoad)) {
     it(`climbs reps on a ${name}, which has nothing to load`, () => {
-      const cfg = { id, sets: 3, reps: 10, weight: 0 }
+      const cfg = { id, sets: 3, reps: 10, weight: 0, prog: 'linear' }
       const twice = stamped(hist(id, [[0, 10, 10, 10], [0, 10, 10, 10]], { sets: 3, reps: 10 }), plannedOf(cfg))
       expect(nextPrescription(twice, cfg)).toMatchObject({ kind: 'up', weight: 0, reps: 11 })
     })
@@ -761,7 +761,7 @@ describe('an edited plan restarts progression (#275)', () => {
 
   it('restarts a bodyweight goal from the new reps instead of climbing from the old ones', () => {
     const S = { unit: 'kg', workouts: [logged(PUSH, { sets: 2, reps: 15, weight: 0 }, { sets: 2, reps: 15, weight: 0 }, 0, [15, 15])] }
-    const p = nextPrescription(S, { id: PUSH, sets: 2, reps: 10, weight: 0, bodyweight: true }, R)
+    const p = nextPrescription(S, { id: PUSH, sets: 2, reps: 10, weight: 0, bodyweight: true, prog: 'linear' }, R)
     expect(p).toMatchObject({ kind: 'hold', weight: 0, reps: 10 })
   })
 
@@ -799,7 +799,7 @@ describe('an edited plan restarts progression (#275)', () => {
 
   it('starts a routine from its own target when the only history is another routine\'s', () => {
     const B = { d: '2026-04-01', routineIds: ['b'], entries: [{ id: PUSH, rid: 'b', planned: { sets: 2, reps: 15, weight: 0 }, target: { sets: 2, reps: 15, weight: 0 }, sets: [{ w: 0, r: 15, done: true }, { w: 0, r: 15, done: true }] }] }
-    const p = nextPrescription({ unit: 'kg', workouts: [B] }, { id: PUSH, sets: 2, reps: 10, weight: 0, bodyweight: true }, { id: 'a', ex: [] })
+    const p = nextPrescription({ unit: 'kg', workouts: [B] }, { id: PUSH, sets: 2, reps: 10, weight: 0, bodyweight: true, prog: 'linear' }, { id: 'a', ex: [] })
     expect(p).toMatchObject({ kind: 'hold', reps: 10 })
     expect(p.why[0]).toBe('First time in this routine, so starting from its own target.')
   })

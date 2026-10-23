@@ -11,7 +11,7 @@ import {
 import Icon from '../components/Icon.jsx'
 import { Button, Row, Section, Segmented } from '../components/ui.jsx'
 import SwipeRow from '../components/SwipeRow.jsx'
-import { copyRoutine, deleteRoutine, restoreRoutine, routineSnapshot } from '../lib/routines.js'
+import { copyRoutine, deleteRoutine, restoreRoutine, routineSnapshot, withProgDefault } from '../lib/routines.js'
 import { workoutControls } from '../lib/workout-controls.js'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { useListReorder, moved } from '../lib/use-list-reorder.js'
@@ -380,7 +380,7 @@ function Routines({ S, update, nav }) {
   }))
 
   const addRoutine = () => {
-    const r = { id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] }
+    const r = withProgDefault({ id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] })
     update(s => { s.routines.push(r) })
     nav('/plan/r/' + r.id)
   }

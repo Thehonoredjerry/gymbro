@@ -434,6 +434,7 @@ export function mergeHevyRoutines(S, parsed) {
       name: r.name,
       emoji: r.emoji || 'figureStrength',
       ...(r.hevyId ? { hevyId: r.hevyId } : {}),
+      prog: 'off',
       ex,
     })
     added++

@@ -3,7 +3,7 @@ import { syncSupersetMeta } from './superset-meta.js'
 import { todayISO, isoOf, weekKey, weekStartOf, fmtNum } from './format.js'
 import { fmtSpeed } from './speed.js'
 import { hasIncline, inclineFrom } from './incline.js'
-import { isCardio, isBodyweightEq, isAssisted, betterWeight } from './exercises.js'
+import { isCardio, isBodyweightEq, isAssisted, betterWeight, isLoadedEq } from './exercises.js'
 import { barWeightFor } from './bar.js'
 import { phaseForSet, modeForSet, modeForEntry, isWarmupRow, isFailureSet, isDropSet, isRestPauseSet, normalizeMode, completedVolumeOf, hasCompletedWork, nextDropWeight, splitBurstReps, makeSideSet, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL, dropsOf, clustersOf } from './workout-model.js'
 import { backoffAt, backoffStepOf, backoffWeights } from './backoff.js'
@@ -610,7 +610,11 @@ function buildWorkSets(S, cfg, options = {}) {
     const w = useTarget
       ? (cfg.weight > 0 ? cfg.weight : (lastRegular && lastRegular.r > 0 ? lastRegular.w : cfg.weight))
       : usable ? usable.w : (conf && conf.w > 0 ? conf.w : cfg.weight)
-    const row = { w, r: planReps || !usable ? cfg.reps : usable.r, done: false }
+    // A loaded exercise never done, with nothing planned or confirmed to start from: the row opens
+    // empty, reps
+    // included, for the lifter to fill in. Bodyweight work keeps the plan's reps (no load to enter).
+    const blank = isLoadedEq(cfg.id) && !usable && !lastRegular && !(conf && conf.w > 0) && !(cfg.weight > 0)
+    const row = { w, r: blank ? 0 : planReps || !usable ? cfg.reps : usable.r, done: false }
     // Pyramid sets: the plan owns each set's own target; a max set opens at what you managed
     // in that same set last time, so the number to beat is already there.
     if (isPyramid(cfg)) {
