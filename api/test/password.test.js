@@ -53,6 +53,14 @@ test('policy: length first, then the passwords every script tries first', () => 
   }
 });
 
+test('policy: GymBro takes six characters, but not the six everyone tries', () => {
+  assert.equal(passwordProblem('gym12', 'Ana'), 'too-short');
+  assert.equal(passwordProblem('liftz7', 'Ana'), null);
+  for (const pw of ['123456', '12345678', '123456789', '654321', '123123', '112233', 'abc123', 'qwerty', 'password', 'iloveyou', 'gymbro']) {
+    assert.equal(passwordProblem(pw, 'Ana'), 'too-common', pw);
+  }
+});
+
 test('names compare folded and trimmed', () => {
   assert.equal(nameKey('  Ana Lu '), 'ana lu');
   assert.equal(nameKey('ＡＮＡ'), 'ana');

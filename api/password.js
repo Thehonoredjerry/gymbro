@@ -16,7 +16,8 @@
  * memory limit by a burst of logins. */
 import crypto from 'node:crypto';
 
-export const MIN_LENGTH = 10;
+// GymBro: friends type this on a phone, so six is the floor (openGym's was ten).
+export const MIN_LENGTH = 6;
 // Long passphrases are the point, so the cap is only there to bound the work: scrypt runs its
 // input through PBKDF2 first, and a 5 MiB "password" would be hashed in full.
 export const MAX_LENGTH = 256;
@@ -149,6 +150,10 @@ export const maskEmail = e => {
    it is megabytes, and an instance that locks an account after a handful of wrong guesses is
    not where the long tail of that list gets tried. */
 const COMMON = new Set([
+  '123456', '1234567', '12345678', '123456789', '654321', '7654321', '87654321', '987654321',
+  '123123', '123321', '112233', '121212', '123654', '159753', '147258', '147258369', '123qwe',
+  '1qaz2wsx', 'qwe123', 'asd123', 'zxc123', 'qwerty1', 'abcdef', 'abcd1234', 'a12345',
+  '696969', '520520', '5201314', '131313', '232323', '102030', '11223344', '12341234',
   '1234567890', '0987654321', '12345678910', '123456789012', '1234567890123', '11111111111',
   '1111111111', '0000000000', '9999999999', '1q2w3e4r5t', '1q2w3e4r5t6y', 'q1w2e3r4t5',
   'qwertyuiop', 'qwertyuiop[]', 'asdfghjkl;', 'asdfghjkl', 'zxcvbnm,./', '1qaz2wsx3edc',

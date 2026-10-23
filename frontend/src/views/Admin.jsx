@@ -161,7 +161,7 @@ export function newPassword() {
 // The server's refusals, said plainly. Anything else is shown as the server worded it.
 const refusal = e => ({
   'name-taken': 'That name is already taken. Pick another.',
-  'too-short': 'The password needs at least 10 characters.',
+  'too-short': 'The password needs at least 6 characters.',
   'too-long': 'That password is too long.',
   'too-common': 'That password is too easy to guess.',
   missing: 'Enter a name.',
