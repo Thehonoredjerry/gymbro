@@ -2164,3 +2164,22 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 :lang(th) body{line-height:1.45;letter-spacing:0}
 :lang(th) .hdr h1,:lang(th) .sp-root-title,:lang(th) .sheet h3,:lang(th) .card .big,
 :lang(th) .tile .v,:lang(th) .stat-v{letter-spacing:0;line-height:1.3}
+
+/* ------------------------------------------------------------ strength ranks -- */
+/* Tier badges (components/RankBadge.jsx) and the rank-up celebration (components/RankUp.jsx).
+   Motion is dropped by the reduced-motion rule near the top. */
+.rank-badge{
+  --tier:var(--grey);
+  width:var(--rb);height:var(--rb);flex:none;display:inline-grid;place-items:center;
+  border-radius:30% 30% 50% 50%;font-weight:800;font-size:calc(var(--rb) * .34);
+  color:#1f1a33;background:linear-gradient(160deg,color-mix(in srgb,var(--tier) 55%,#fff),var(--tier));
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--tier) 40%,transparent);
+}
+.rank-bronze{--tier:#c27a45} .rank-silver{--tier:#aeb4c2} .rank-gold{--tier:var(--orange)}
+.rank-platinum{--tier:var(--mint)} .rank-diamond{--tier:var(--blue);color:#fff}
+.rank-champion{--tier:var(--purple);color:#fff}
+.rank-none{background:var(--surface-3);color:var(--label-2);box-shadow:none}
+.rankup-row{padding:12px 0;border-bottom:var(--hair) solid var(--sep);margin-bottom:12px}
+.rankup-row .rank-badge:last-child{animation:rankup-pop .6s cubic-bezier(.2,1.6,.4,1) both}
+.rankup-level{font-size:28px;font-weight:800;color:var(--acc-text);animation:rankup-pop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes rankup-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}

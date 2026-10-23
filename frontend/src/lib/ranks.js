@@ -67,7 +67,7 @@ export function rankingStrength(S, exId, { now = Date.now() } = {}) {
 
 // Points 1..16: bronze III = 1 … diamond I = 15, champion = 16.
 const pointsOf = (tierIdx, division) => (tierIdx === 5 ? 16 : tierIdx * 3 + (4 - division))
-const fromPoints = points => {
+export const fromPoints = points => {
   if (points >= 16) return { tier: 'champion', division: null, points: 16 }
   const p = Math.max(1, points), tierIdx = Math.floor((p - 1) / 3)
   return { tier: TIERS[tierIdx], division: 3 - ((p - 1) % 3), points: p }

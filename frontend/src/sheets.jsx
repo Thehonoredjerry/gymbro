@@ -44,6 +44,8 @@ import { MOBILE, shareExport, shareExportBlob, printHtml } from './lib/mobile.js
 import { speedUnitOf, toSpeed, fromSpeed } from './lib/speed.js'
 import { buildCompletedWorkout, sessionEnd } from './lib/finish-workout.js'
 import { refillAfter } from './lib/rotation.js'
+import { progressSnapshot, rankUps } from './lib/rankup.js'
+import RankUp from './components/RankUp.jsx'
 import { isWarmupRow, hasCompletedWork } from './lib/workout-model.js'
 import { saveSessionAsRoutine } from './lib/session-routines.js'
 import { repeatSessionEntries } from './lib/session-repeat.js'
@@ -3390,6 +3392,7 @@ function doFinishWorkout() {
   })
   w.vol = workoutVolume(w)
   let shown = w
+  const before = progressSnapshot(st)
   update(s => {
     if (past) {
       // Its start and end are in the past; the stamp says when it was logged, which is what a
@@ -3419,5 +3422,9 @@ function doFinishWorkout() {
   // into s.active, which is gone. What it held is not logged, like any set left unchecked.
   useUI.getState().stopWork()
   beep(snd(), 880, 0.15); beep(snd(), 1100, 0.15, 0.18); beep(snd(), 1320, 0.3, 0.36)
-  ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} close={close} />, { kind: 'center', locked: true })
+  const summary = () => ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} close={close} />, { kind: 'center', locked: true })
+  const after = S()
+  const ups = rankUps(before, progressSnapshot(after), after)
+  if (!ups.length) return summary()
+  ui().openSheet(close => <RankUp ups={ups} close={() => { close(); summary() }} />, { kind: 'center', locked: true })
 }
