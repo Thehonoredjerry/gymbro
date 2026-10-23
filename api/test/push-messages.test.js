@@ -25,3 +25,21 @@ test('keeps the existing English copy as the fallback', () => {
   assert.equal(dayReminderPush('unknown', null).title, 'Workout planned today');
   assert.equal(testPush(undefined).body, 'Test notification ✅ This is what alerts look like.');
 });
+
+test('every server-generated notification has its own Thai text', () => {
+  const routine = { name: 'Leg Day', emoji: '🦵' };
+  const pairs = [
+    [restTimerPush('th'), restTimerPush('en')],
+    [dayReminderPush('th', routine), dayReminderPush('en', routine)],
+    [dayReminderPush('th', null), dayReminderPush('en', null)],
+  ];
+  for (const [th, en] of pairs) {
+    for (const key of ['title', 'body']) {
+      assert.ok(th[key], key + ' is set');
+      assert.notEqual(th[key], en[key], `${key} is Thai, not the English fallback: ${th[key]}`);
+    }
+  }
+  // The test notification keeps the brand as its title; its body is the translated part.
+  assert.notEqual(testPush('th').body, testPush('en').body);
+  assert.match(restTimerPush('th').title, /[฀-๿]/);
+});

@@ -10,6 +10,14 @@ const COPY = {
     dayRoutineSuffix: 'today',
     dayBody: "It's on your plan. Let's go 💪",
   },
+  th: {
+    restTitle: 'หมดเวลาพัก 💪',
+    restBody: 'ได้เวลาเซ็ตต่อไปแล้ว',
+    testBody: 'ทดสอบการแจ้งเตือน ✅ การแจ้งเตือนจะหน้าตาแบบนี้',
+    dayFallbackTitle: 'วันนี้มีแผนออกกำลังกาย',
+    dayRoutineSuffix: 'วันนี้',
+    dayBody: 'อยู่ในแผนของคุณแล้ว ไปลุยกัน 💪',
+  },
   'pt-BR': {
     restTitle: 'Descanso terminado 💪',
     restBody: 'Hora da próxima série.',
