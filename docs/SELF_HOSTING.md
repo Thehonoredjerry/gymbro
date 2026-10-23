@@ -444,6 +444,7 @@ NGINX_PORT=80              # port the web container listens on, inside the conta
 BACKEND=api                # name of the API service that /api is proxied to
 PORT=3000                  # port the API listens on; web proxies to the same value
 RESOLVER=127.0.0.11        # DNS nginx resolves BACKEND with — Docker's, unless you are not on Docker
+RESOLVER_IPV6=off          # on where the private network is IPv6-only (Railway: with RESOLVER=[fd12::10])
 BASE_PATH=                 # subpath GymBro is served under, e.g. /gym — see below; empty = site root
 SESSION_DAYS=90            # how long a sign-in lasts
 ```
