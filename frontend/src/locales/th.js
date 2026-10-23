@@ -2276,4 +2276,5 @@ export default {
   'Get a nudge when your rest is over.': 'รับการแจ้งเตือนเมื่อหมดเวลาพัก',
   'Turn on': 'เปิด',
   'optional': 'ไม่บังคับ',
+  'Enter reps first': 'กรอกจำนวนครั้งก่อน',
 }

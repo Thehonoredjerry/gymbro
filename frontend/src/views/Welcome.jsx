@@ -21,6 +21,7 @@ const store = () => useStore.getState()
 const num = v => { const n = Number(String(v).trim().replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : null }
 const field = { autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false }
 const errStyle = { color: 'var(--red)', marginTop: 10 }
+const lbl = { display: 'block', marginBottom: 6 }
 const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh' }
 
 const Head = () => <div style={{ textAlign: 'center', marginBottom: 22 }}>
@@ -80,7 +81,8 @@ function AccountStep({ next }) {
       {askInvite && <>
         <div style={{ height: 10 }} />
         <input className="input" name="invite" placeholder={t('Invite code')} maxLength={40} value={code} onChange={e => setCode(e.target.value.toUpperCase())}
-          style={{ letterSpacing: '.14em', fontWeight: 600, textAlign: 'center' }} {...field} />
+          // Spaced out only once typed: on a Thai placeholder the spacing tears the vowel marks off.
+          style={{ letterSpacing: code ? '.14em' : 0, fontWeight: 600, textAlign: 'center' }} {...field} />
       </>}
       {err && <div className="small" role="alert" style={errStyle}>{err}</div>}
       <div style={{ height: 14 }} />
@@ -113,10 +115,10 @@ function ProfileStep({ next }) {
     {user?.name && <div className="big" style={{ fontSize: 22, marginBottom: 12, textAlign: 'center' }}>{t('Hi, {0}!', user.name)}</div>}
     <Segmented options={[{ value: 'male', label: t('Male') }, { value: 'female', label: t('Female') }]} value={body} onChange={setBody} />
     <form onSubmit={submit} style={{ marginTop: 14 }}>
-      <label className="small muted">{t('Body weight')} ({S.unit})</label>
+      <label className="small muted" style={lbl}>{t('Body weight')} ({S.unit})</label>
       <input className="input" name="bodyweight" inputMode="decimal" value={bw} onChange={e => setBw(e.target.value)} />
       <div style={{ height: 10 }} />
-      <label className="small muted">{t('Goal')} ({S.unit}) · {t('optional')}</label>
+      <label className="small muted" style={lbl}>{t('Goal')} ({S.unit}) · {t('optional')}</label>
       <input className="input" name="goal" inputMode="decimal" value={goal} onChange={e => setGoal(e.target.value)} />
       {err && <div className="small" role="alert" style={errStyle}>{err}</div>}
       <div style={{ height: 14 }} />

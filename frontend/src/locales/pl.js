@@ -2265,4 +2265,5 @@ export default {
   'Get a nudge when your rest is over.': 'Get a nudge when your rest is over.',
   'Turn on': 'Turn on',
   'optional': 'optional',
+  'Enter reps first': 'Enter reps first',
 }
