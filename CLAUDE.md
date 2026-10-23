@@ -60,6 +60,10 @@ GitHub (`github.com/Thehonoredjerry/gymbro`) is the home of the project. Pull re
 (`node:22-alpine`): the frontend, api and MCP suites, the locale checks, and building and booting
 the api image.
 
+Android APKs are built by `.github/workflows/android.yml` on every push to `main` (artifact, not a
+release), signed from the `ANDROID_KEYSTORE_*` secrets; `VITE_UPDATE_CHECK=0` turns the in-app
+update check off. The keystore lives outside the repo — never commit it.
+
 Keep the media licence wording intact: the exercise stills and animations in `catalogue/media/`
 are licensed from Gym visual **for openGym only** (NOTICE.md). Never rebrand those lines.
 
@@ -82,6 +86,12 @@ are licensed from Gym visual **for openGym only** (NOTICE.md). Never rebrand tho
   - `workout-model.js`, `supersetFlow.js` — in-session workout state machine, incl. supersets.
   - `exercises.js` / `exercises-data.js` — the exercise library (1,324 built-ins + user-defined).
   - `api.js` — the only place that talks to the backend (`fetch` wrapper, session cookie flows).
+  - `ranks.js` / `xp.js` / `rankup.js` — GymBro strength ranks (Bronze III → Champion, "prove it
+    twice": second-best session e1RM in 90 days ÷ body weight), XP/levels, and the rank-up diff
+    shown after a workout. All derived from history, never stored.
+  - `server-url.js` — `VITE_SERVER_URL` bakes a GymBro server into the phone build; the Welcome
+    flow (`views/Welcome.jsx`: language → account → profile) signs in to it with a password
+    (`remote.js` `signInWithPassword`, a bearer token). Without it the phone uses openGym pairing.
   - CONTRIBUTING.md is explicit: **anything that decides what you lift next, or reads a logged
     session back, is a pure helper here with a unit test beside it** — not verifiable by
     clicking, and the progression engine has already had two bugs that only a test caught.
