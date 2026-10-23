@@ -11,6 +11,7 @@ import Icon from '../components/Icon.jsx'
 import { Button, Segmented } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import '../admin.css'
+import { ADMIN_SITE } from '../lib/admin-site.js'
 
 // Admin-only operator dashboard (owner passkey + admin flag; guarded again server-side).
 // Deliberately English-only — it isn't part of the translated end-user surface, so it stays
@@ -362,9 +363,10 @@ export default function Admin() {
 
   return <div className="narrow adm-page">
     <div className="hdr">
-      <button className="iconbtn" onClick={() => nav('/settings/account')} aria-label="Back"><Icon name="chevronLeft" /></button>
-      <div style={{ flex: 1, marginInlineStart: 8 }}><h1 style={{ margin: 0 }}>Admin</h1><div className="sub">{sub}</div></div>
+      {!ADMIN_SITE && <button className="iconbtn" onClick={() => nav('/settings/account')} aria-label="Back"><Icon name="chevronLeft" /></button>}
+      <div style={{ flex: 1, marginInlineStart: ADMIN_SITE ? 0 : 8 }}><h1 style={{ margin: 0 }}>Admin</h1><div className="sub">{sub}</div></div>
       <button className="iconbtn" onClick={() => { reload(); setTick(x => x + 1) }} aria-label="refresh"><Icon name="reset" /></button>
+      {ADMIN_SITE && <Button size="sm" onClick={() => useStore.getState().signOut({ force: true })}>Sign out</Button>}
     </div>
 
     {usersErr && <div className="card adm-sec" role="alert" style={{ borderColor: 'var(--red)' }}>

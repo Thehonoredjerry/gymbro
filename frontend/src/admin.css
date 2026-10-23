@@ -169,3 +169,13 @@
   :root[data-adm] .adm-page .card{background:color-mix(in srgb,var(--glass-solid) 88%,transparent)}
   :root[data-adm] #tabbar{background:var(--glass-solid)}
 }
+
+/* the admin website's sign-in (views/AdminLogin.jsx): one frosted panel, centred */
+.adm-login{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
+:root[data-adm] .adm-login .adm-login-card{width:100%;max-width:380px;padding:28px 24px 24px;margin:0}
+.adm-login-mark{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:16px;
+  font-size:22px;color:var(--label);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--sep)
+}
+.adm-login h1{font-size:24px;font-weight:650;letter-spacing:-.02em;margin:0 0 20px}
+.adm-login .btn.primary{width:100%;min-height:48px}

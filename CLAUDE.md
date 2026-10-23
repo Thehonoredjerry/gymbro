@@ -92,6 +92,9 @@ are licensed from Gym visual **for openGym only** (NOTICE.md). Never rebrand tho
   - `server-url.js` — `VITE_SERVER_URL` bakes a GymBro server into the phone build; the Welcome
     flow (`views/Welcome.jsx`: language → account → profile) signs in to it with a password
     (`remote.js` `signInWithPassword`, a bearer token). Without it the phone uses openGym pairing.
+  - `admin-site.js` — `VITE_ADMIN_SITE=1` (a build arg of the web service) makes the website only the
+    admin panel: `views/AdminLogin.jsx` asks for `ADMIN_PASSWORD` (api env, `POST /api/admin/login`,
+    a built-in admin account flagged `panel`). Friends sign up and train in the phone app.
   - CONTRIBUTING.md is explicit: **anything that decides what you lift next, or reads a logged
     session back, is a pure helper here with a unit test beside it** — not verifiable by
     clicking, and the progression engine has already had two bugs that only a test caught.

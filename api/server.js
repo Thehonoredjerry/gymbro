@@ -49,6 +49,9 @@ const INVITE_ONLY = /^(1|true|yes|on)$/i.test(process.env.INVITE_ONLY || '');
 // kept local) would otherwise hand admin to whoever signs up first after the upgrade.
 // FIRST_USER_ADMIN=1 turns it on for a fresh install.
 const FIRST_USER_ADMIN = /^(1|true|yes|on)$/i.test(process.env.FIRST_USER_ADMIN || '');
+// GymBro: the website is only the admin panel, opened with this one password (POST /api/admin/login).
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+let adminPasswordHash = null;   // hashed once, on first use, so a wrong guess costs a real scrypt
 // Checked synchronously right before db.users.push, with no await in between, so two
 // registrations racing each other cannot both see an empty instance.
 function claimFirstAdmin(req, user) {
@@ -951,7 +954,7 @@ setInterval(() => { AUTH_BURST.sweep(); ADDR_FAILS.sweep(); ACCOUNT_FAILS.sweep(
 // budget; `null` spends only that.
 const THROTTLED = {
   'POST /api/login/password': 'password', 'POST /api/login/password-reset': 'password',
-  'POST /api/register/password': 'signup',
+  'POST /api/register/password': 'signup', 'POST /api/admin/login': 'password',
   'POST /api/account/password': 'password', 'DELETE /api/account/password': null,
   // Setting an e-mail only spends the budget and asks the address's e-mail pause; an address
   // already in use counts against it (see POST /api/account/email).
@@ -1238,6 +1241,29 @@ async function removeEmail(req, res, user, body) {
 }
 
 const passwordRoutes = {
+  // The admin panel's own sign-in: one password from ADMIN_PASSWORD, throttled and locked out like
+  // any other, signing in to a built-in admin account (made on first use, kept by its `panel` flag).
+  'POST /api/admin/login': async (req, res) => {
+    if (!ADMIN_PASSWORD) return json(res, 404, { error: 'not found' });
+    const body = await readBody(req);
+    const pw = typeof body.password === 'string' ? body.password : '';
+    if (!pw) return json(res, 400, { error: 'password required', code: 'missing' });
+    const check = passwordAttempt(req, res, 'admin-panel');
+    if (!check) return;
+    adminPasswordHash ??= await hashPassword(ADMIN_PASSWORD);
+    if (!(await check.verify(pw, adminPasswordHash))) {
+      check.failed(null, 'bad-password', 'admin-panel');
+      return json(res, 401, WRONG);
+    }
+    check.ok();
+    let user = db.users.find(u => u.panel);
+    if (!user) {
+      user = { id: crypto.randomBytes(12).toString('base64url'), name: 'Admin', created: new Date().toISOString(), admin: true, panel: true };
+      db.users.push(user); saveDb();
+    }
+    audit(req, 'auth.password.ok', { user });
+    json(res, 200, { user: publicUser(user) }, { 'Set-Cookie': sessionCookie(user) });
+  },
   'POST /api/login/password': async (req, res) => {
     const body = await readBody(req);
     const target = loginTarget(body);

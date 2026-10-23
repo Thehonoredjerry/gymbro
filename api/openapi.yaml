@@ -2246,6 +2246,39 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /api/admin/login:
+    post:
+      tags: [admin]
+      operationId: adminLogin
+      summary: 'Admin panel: sign in with the admin password'
+      description: >-
+        GymBro. The website is only the admin panel; it opens with the one password set in
+        ADMIN_PASSWORD on the server. The right password signs in to a built-in admin account
+        (made on first use) and sets the session cookie. Throttled and locked out like every
+        password sign-in. 404 while ADMIN_PASSWORD is unset.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string }
+      responses:
+        '200':
+          description: Signed in; the session cookie is set.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { type: object }
+        '400': { description: 'No password (code: missing).' }
+        '401': { description: 'Wrong password (code: bad-credentials).' }
+        '404': { description: 'ADMIN_PASSWORD is not set.' }
+        '429': { description: 'Too many wrong passwords; try again later.' }
   /api/admin/users/new:
     post:
       tags: [admin]

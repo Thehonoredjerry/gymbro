@@ -28,6 +28,8 @@ import RestTimer from './components/RestTimer.jsx'
 import TimerFlash from './components/TimerFlash.jsx'
 import { openDeviceLinkRedeem } from './components/Passkeys.jsx'
 import Login from './views/Login.jsx'
+import AdminLogin from './views/AdminLogin.jsx'
+import { ADMIN_SITE } from './lib/admin-site.js'
 import Welcome from './views/Welcome.jsx'
 import { DEMO } from './lib/demo.js'
 import { builtinServer } from './lib/server-url.js'
@@ -188,11 +190,12 @@ function Shell() {
   // GymBro's first launch (views/Welcome.jsx): signed out on the web, or a phone build with a
   // built-in server and no account on it yet; then an account with no profile and no weigh-in.
   // The demo keeps its own entrance (Login), a phone without a built-in server openGym's pairing.
-  const welcome = DEMO ? null
+  // The admin website (lib/admin-site.js) is the panel and its password page, nothing else.
+  const welcome = DEMO || ADMIN_SITE ? null
     : (MOBILE ? builtinServer() && !user : !authed) ? 'lang'
     : user && !S.profileDone && !S.bodyweight?.length ? 'profile' : null
   const onboarding = needsMobileOnboarding && !builtinServer()
-  const noTabs = inWorkout || needsMobileOnboarding || !!welcome
+  const noTabs = inWorkout || needsMobileOnboarding || !!welcome || ADMIN_SITE
   if (!ready && !authed) return (
     <div id="app">
       <div style={{ paddingTop: '44vh', display: 'flex', justifyContent: 'center', fontSize: 34, color: 'var(--label-3)' }}>
@@ -207,7 +210,7 @@ function Shell() {
           re-mounts the boundary, so the tab bar is always a way out */}
       <div id="app" className="vfade" key={loc.pathname}>
         <ErrorBoundary>
-          {welcome ? <Welcome start={welcome} /> : !authed ? <Login /> : onboarding ? <MobileOnboarding /> : (
+          {ADMIN_SITE ? (user?.admin ? <Admin /> : <AdminLogin />) : welcome ? <Welcome start={welcome} /> : !authed ? <Login /> : onboarding ? <MobileOnboarding /> : (
             <Routes>
               <Route path="/home" element={<Home />} />
               {/* Gym check-in — switched off in Settings, the route falls through to the

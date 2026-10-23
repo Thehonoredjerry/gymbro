@@ -19,7 +19,10 @@ COPY frontend/ ./
 # image built between two releases calls itself the same thing, and "which build are you running?"
 # cannot be answered from the phone. Unset, the app reports package.json's version as before.
 ARG APP_BUILD=""
-RUN APP_BUILD="$APP_BUILD" npm run build
+# GymBro: VITE_ADMIN_SITE=1 (a Railway service variable reaches the build as this ARG) makes the
+# website only the admin panel behind ADMIN_PASSWORD; friends use the phone app.
+ARG VITE_ADMIN_SITE=""
+RUN APP_BUILD="$APP_BUILD" VITE_ADMIN_SITE="$VITE_ADMIN_SITE" npm run build
 
 FROM nginxinc/nginx-unprivileged:alpine
 # Same reason as in api/Dockerfile: alpine fixes land faster than the nginx image is rebuilt.
