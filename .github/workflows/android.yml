@@ -1,0 +1,81 @@
+# GymBro's Android app, built on every push to main: the phone build signs in to the GymBro server
+# baked in below (VITE_SERVER_URL, lib/server-url.js) and has the in-app update check off
+# (VITE_UPDATE_CHECK=0) — the APK comes from this job's artifact, not a GitHub release.
+# Signed with the repository's keystore when its secrets are set; a fork without them still gets
+# the unsigned APK. Never set APP_MEDIA_DIR here: the licensed exercise media must not end up in
+# a package (scripts/catalogue/stage-media.mjs).
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+
+      - name: Build the web app for the phone
+        working-directory: frontend
+        env:
+          VITE_SERVER_URL: https://gymbro-production-c5ec.up.railway.app
+          VITE_UPDATE_CHECK: '0'
+        run: |
+          npm ci
+          npm run build:mobile
+
+      - name: Build the release APK
+        working-directory: frontend/android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Sign (when the keystore secrets are set)
+        working-directory: frontend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          UNSIGNED=android/app/build/outputs/apk/release/app-release-unsigned.apk
+          mkdir -p out
+          if [ -n "$KEYSTORE_B64" ]; then
+            TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/gymbro.keystore"
+            "$TOOLS/zipalign" -f -p 4 "$UNSIGNED" "$RUNNER_TEMP/aligned.apk"
+            "$TOOLS/apksigner" sign --ks "$RUNNER_TEMP/gymbro.keystore" --ks-key-alias "$KEY_ALIAS" \
+              --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEYSTORE_PASSWORD \
+              --out "out/GymBro-$VERSION.apk" "$RUNNER_TEMP/aligned.apk"
+            rm -f "$RUNNER_TEMP/gymbro.keystore"
+          else
+            echo "::warning::No keystore secrets: uploading an unsigned APK, which phones will not install."
+            cp "$UNSIGNED" "out/GymBro-$VERSION-unsigned.apk"
+          fi
+          cd out && for f in *.apk; do sha256sum "$f" > "$f.sha256"; done && ls -l
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GymBro-apk
+          path: frontend/out/*
+          if-no-files-found: error

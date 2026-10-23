@@ -228,3 +228,15 @@ describe('semver comparison (via checkForUpdate behavior)', () => {
     expect((await checkForUpdate()).hasUpdate).toBe(false)
   })
 })
+
+describe('checkForUpdate switched off (GymBro builds its APK in CI, with no releases to check)', () => {
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); resetUpdateCheck() })
+  it('answers "no update" without asking GitHub', async () => {
+    vi.stubEnv('VITE_UPDATE_CHECK', '0')
+    const fetch = vi.fn()
+    vi.stubGlobal('fetch', fetch)
+    resetUpdateCheck()
+    await expect(checkForUpdate()).resolves.toEqual({ hasUpdate: false, disabled: true })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+})

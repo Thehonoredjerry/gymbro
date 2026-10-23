@@ -264,8 +264,18 @@ accounts, no store rules, no yearly fees between you and an open-source app.
 
 ### Android — sideload the APK
 
-Signed APKs are attached to each [GitHub release](https://github.com/Thehonoredjerry/gymbro/releases),
-with a `.sha256` beside each one. The in-app updater checks the same releases.
+GymBro's APK is built by GitHub Actions on every push to `main`
+([`.github/workflows/android.yml`](../.github/workflows/android.yml)): open the latest successful
+**Android APK** run under the repository's *Actions* tab and download the `GymBro-apk` artifact
+(you need to be signed in to GitHub). It holds `GymBro-<version>.apk` and its `.sha256`. That
+build signs in to the GymBro server built into it and has the in-app update check switched off;
+install a newer APK over the old one to update.
+
+The APK is signed with the keystore kept in the repository's secrets (`ANDROID_KEYSTORE_B64`,
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`). **Keep a copy of that keystore and its
+password somewhere safe:** Android only installs an update signed with the same key, so losing
+it means every phone has to uninstall (and lose its local copy) before the next version goes on.
+A fork without those secrets still gets an unsigned APK, which phones refuse to install.
 
 Android asks you to allow installs from the browser the first time — that's standard for any
 app outside the Play Store. Check the `.sha256` before you install.

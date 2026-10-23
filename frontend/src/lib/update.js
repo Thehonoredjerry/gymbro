@@ -50,7 +50,11 @@ function compareSemver(a, b) {
 // about it every time. The promise is cached, a failure is not.
 let cached = null
 export function resetUpdateCheck() { cached = null }
+// GymBro's APK comes from a CI artifact, not a GitHub release, so its builds switch the check off
+// (VITE_UPDATE_CHECK=0, .github/workflows/android.yml) and Settings hides the update row.
+export const updateCheckOn = () => import.meta.env.VITE_UPDATE_CHECK !== '0'
 export async function checkForUpdate() {
+  if (!updateCheckOn()) return { hasUpdate: false, disabled: true }
   if (!cached) cached = fetchLatest().catch(e => { cached = null; throw e })
   return cached
 }
