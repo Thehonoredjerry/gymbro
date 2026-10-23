@@ -647,10 +647,18 @@ const CSRF_EXEMPT = new Set([
   'POST /api/login/options', 'POST /api/login/verify',
   'POST /api/pair/redeem'
 ]);
+// The one exception to the login-CSRF rule above: the GymBro app signs in with a name and a
+// password from its WebView, whose origin is one of these two and never ORIGIN. No website can
+// claim either (a page on http://localhost can, so that one is deliberately not here), and the
+// app gets a bearer token back instead of a cookie, so nothing ambient is left to borrow.
+const APP_PASSWORD_ORIGINS = new Set(['capacitor://localhost', 'https://localhost']);
+const APP_PASSWORD_ROUTES = new Set(['POST /api/login/password', 'POST /api/register/password']);
+const appToken = (req, user) => (APP_PASSWORD_ORIGINS.has(req.headers.origin) ? { token: makeSession(user) } : {});
 const originsMatch = (a, b) => a.replace(/\/+$/, '') === b.replace(/\/+$/, '');
 function csrfOk(req, key) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return true;
   if (CSRF_EXEMPT.has(key)) return true;
+  if (APP_PASSWORD_ROUTES.has(key) && APP_PASSWORD_ORIGINS.has(req.headers.origin)) return true;
   // The paired mobile app authenticates with a Bearer token. A browser never attaches one on its
   // own, so there is no ambient authority for a hostile page to borrow and no origin to check.
   if ((req.headers.authorization || '').startsWith('Bearer ')) return true;
@@ -1269,7 +1277,7 @@ const passwordRoutes = {
       if (!still()) return json(res, 401, WRONG);
     }
     audit(req, 'auth.password.ok', { user });
-    json(res, 200, { user: publicUser(user) }, { 'Set-Cookie': sessionCookie(user) });
+    json(res, 200, { user: publicUser(user), ...appToken(req, user) }, { 'Set-Cookie': sessionCookie(user) });
   },
 
   // For browsers that cannot make a passkey at all: plain http on a LAN address, some Firefox
@@ -1322,7 +1330,7 @@ const passwordRoutes = {
     db.users.push(user);
     saveDb();
     audit(req, 'auth.register.ok', { user, msg: inv ? inv.code + ' · password' : 'password' });
-    json(res, 200, { user: publicUser(user) }, { 'Set-Cookie': sessionCookie(user) });
+    json(res, 200, { user: publicUser(user), ...appToken(req, user) }, { 'Set-Cookie': sessionCookie(user) });
   },
 
   // What Settings shows: whether a password is set, and whether it could be removed.
