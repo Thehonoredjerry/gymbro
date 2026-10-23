@@ -348,6 +348,8 @@ export default function Admin() {
   const loadInvites = () => api('/api/admin/invites').then(d => setInvites(d.invites)).catch(() => {})
   const reload = () => { loadUsers(); loadInvites() }
   // poll every 15s so "training now" stays live without a manual refresh
+  // The glass theme (admin.css) covers this page and the sheets it opens, and only while it is open.
+  useEffect(() => { const de = document.documentElement; de.dataset.adm = ''; return () => { delete de.dataset.adm } }, [])
   useEffect(() => { if (!user?.admin) return; reload(); const iv = setInterval(loadUsers, 15000); return () => clearInterval(iv) }, [])
   if (!user?.admin) return null
 
