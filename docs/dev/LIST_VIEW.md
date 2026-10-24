@@ -1,7 +1,7 @@
 # Workout view — cards / list / compact / focus
 
 The active workout screen (`frontend/src/views/Workout.jsx`) has four layouts, chosen by
-`S.workoutView` (`'cards' | 'list' | 'compact' | 'focus'`, default `'cards'`). All four use the
+`S.workoutView` (`'cards' | 'list' | 'compact' | 'focus'`; upstream's default is `'cards'`, GymBro's is `'list'`). All four use the
 same active session and completion pipeline.
 
 | Value | What you see |

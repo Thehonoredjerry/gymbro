@@ -4,7 +4,7 @@ import { useUI } from './store/useUI.js'
 import { EXDB, EXIDX, BODYPARTS, isCardio, isBodyweightEq, allExercises, equipmentOf, byCategory, smOf, searchExercises, similarExercises, exOr, isAssisted, betterWeight, beatsWeight, isCustomEx } from './lib/exercises.js'
 import { activeProfile, exAvailable, ALL_EQUIPMENT, newProfile, profileEquipment, ACC_V } from './lib/equipment.js'
 import { fmtDate, fmtDateRange, fmtNum, fmtPlate, exerciseNameText, fmtVol, fmtDur, durPart, todayISO, isoOf, uid, exCount, routineCount, setsWorkCount, DAYN, DAYS, weekOrder, weekStartOf, weekDayOffset, MONTHS_LONG, ACCENTS } from './lib/format.js'
-import { lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, effectiveRoutineIds, workoutDay, workoutVolume, setsDone, setsDoneActive, setUnitsTotal, lastBW, sessionSections, setLabel, defaultConfig, cleanupSg, modeOf, effortOf, EFFORT, capEffort, stepEffort, isBw, isPerSide, sideReps, workSetsDone, applyIntensifierPlan, MAX_PLANNED_WARMUPS, NOTE_MAX } from './lib/history.js'
+import { lastEntryFor, bestWeightFor, bestWeightForEntry, buildSets, effectiveRoutineIds, workoutDay, workoutVolume, setsDone, setsDoneActive, setUnitsTotal, lastBW, sessionSections, setLabel, defaultConfig, entryRoutineId, cleanupSg, modeOf, effortOf, EFFORT, capEffort, stepEffort, isBw, isPerSide, sideReps, workSetsDone, applyIntensifierPlan, MAX_PLANNED_WARMUPS, NOTE_MAX } from './lib/history.js'
 import { usesBar, defaultBarWeight, hasBarOverride, isNoBar } from './lib/bar.js'
 import { PLATE_SIZES, pairsOf, ownsPlates, withPlatePairs, withStandardPlates, withLoadKind, loadKindFor, baseWeightFor, dropGrid } from './lib/plates.js'
 import { toScale, rirOf, EFFORT_PRESETS, effortColor } from './lib/effort.js'
@@ -34,7 +34,7 @@ import { parseImport, mergeImport } from './lib/import-csv.js'
 import { importHevyData, HevyApiError, HEVY_DEV_SETTINGS, mergeHevyRoutines } from './lib/import-hevy.js'
 import { buildPlanBundle, parsePlan, mergePlan, printPlan, planPrintHTML } from './lib/plan-share.js'
 import { estimate1RM, best1RM, is1RMRecord, REP_CAP, formulaOf, FORMULA_NAMES } from './lib/onerm.js'
-import { exerciseHistory } from './lib/exercise-history.js'
+import { exerciseHistory, e1rmProgress } from './lib/exercise-history.js'
 import { isBellEx, dbLoadOf, dbLoadFor, withDbLoad, withMeaning, historyAs, entryDbLoad, currentDbLoad, isOneArm, ownedWeightsFor, dumbbellsOf, ownsDumbbells, withDumbbells, presetWeights, cleanWeights } from './lib/dumbbells.js'
 import { policyFor, defaultIncrement, POLICIES_FOR, POLICY_NAME, POLICY_DESC, MAX_BW_SETS, MAX_TRIPLE_SETS, weightIncrement } from './lib/progression.js'
 import { normalizeRepRange } from './lib/rep-range.js'
@@ -49,7 +49,7 @@ import RankUp from './components/RankUp.jsx'
 import RankBadge, { rankName } from './components/RankBadge.jsx'
 import { rankFor, kgIn } from './lib/ranks.js'
 import { isWarmupRow, hasCompletedWork } from './lib/workout-model.js'
-import { saveSessionAsRoutine } from './lib/session-routines.js'
+import { saveSessionAsRoutine, sessionRoutine, routineStructureChanged, updateRoutineFromSession } from './lib/session-routines.js'
 import { repeatSessionEntries } from './lib/session-repeat.js'
 import { swapActiveExercise } from './lib/active-exercise-swap.js'
 import { useSheetKeyboard, useRevealActiveChip, tappable } from './lib/use-sheet-keyboard.js'
@@ -1050,6 +1050,8 @@ function ExerciseHistory({ exId }) {
   const onE1 = curve === 'e1rm' && h.e1rmPoints.length > 0
   const unit = h.metric === 'weight' ? st.unit : h.metric === 'reps' ? t('reps') : h.metric === 'sec' ? 's' : t('min')
   const e1Best = useMemo(() => Math.max(0, ...h.e1rmPoints.map(p => p.y)), [h])
+  const prog = h.metric === 'weight' ? e1rmProgress(h.e1rmPoints) : null
+  const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + fmtNum(Math.abs(n))
   if (!h.total) return <>
     <h3 className={exerciseNameClass(ex)}>{exerciseNameFor(ex)}</h3>
     <div className="empty"><div className="ico"><Icon name="history" /></div>{t('No sessions logged yet')}</div>
@@ -1071,6 +1073,16 @@ function ExerciseHistory({ exId }) {
       <Icon name="trophy" style={{ fontSize: 14, color: 'var(--yellow)' }} />
       {t('Best:')} <b className="accent">{fmtNum(onE1 ? e1Best : h.best)} {onE1 ? st.unit : unit}</b>
     </div>
+    {/* GymBro: how far the estimated 1RM moved since the first session, in kg and percent. */}
+    {prog && <div className="e1-progress">
+      <div className="tiles">
+        <div className="tile"><div className="l">{t('Since {0}', fmtDate(prog.base.d, true))}</div><div className="v">{signed(prog.change)} {st.unit}</div></div>
+        <div className="tile"><div className="l">{t('Improvement')}</div><div className="v">{signed(Math.round(prog.pct))}%</div></div>
+        <div className="tile"><div className="l">{t('Latest est. 1RM')}</div><div className="v">{fmtNum(prog.latest.y)} {st.unit}</div></div>
+        <div className="tile"><div className="l">{t('Best est. 1RM')}</div><div className="v">{fmtNum(prog.best.y)} {st.unit}</div></div>
+      </div>
+      <div className="small dim">{t('Estimated from your logged sets, not a tested max.')}</div>
+    </div>}
     <h4 className="sec">{h.sessions.length < h.total ? t('Last {0} sessions', h.sessions.length) : t('Sessions')}</h4>
     <div className="list">
       {h.sessions.map(s => <div key={s.id} className="item" style={{ alignItems: 'flex-start' }}>
@@ -1283,8 +1295,19 @@ function usageMap(st) {
 }
 // The swap pickers' own scope (#473): exercises sharing the swapped exercise's target muscle.
 const SAME = '≈'
-function ExercisePicker({ onPick, title, close, like }) {
+function ExercisePicker({ onPick, onPickMany, title, close, like }) {
   const st = useStore(s => s.S)
+  // GymBro: with onPickMany the rows tick instead of adding, and one button adds them all.
+  const multi = !!onPickMany
+  const [sel, setSel] = useState([])
+  const isSel = e => sel.some(x => x.id === e.id)
+  const toggle = e => setSel(cur => cur.some(x => x.id === e.id) ? cur.filter(x => x.id !== e.id) : [...cur, e])
+  const pick = (e, quick) => multi ? toggle(e) : onPick(e, quick)
+  const created = e => multi ? setSel(cur => cur.some(x => x.id === e.id) ? cur : [...cur, e]) : onPick(e)
+  const multiBar = multi && sel.length > 0 && <div className="picker-multi-bar">
+    <Button variant="ghost" onClick={() => setSel([])}>{t('Clear')}</Button>
+    <Button variant="primary" onClick={() => { onPickMany(sel); close() }}>{tn('Add {0} exercise', 'Add {0} exercises', sel.length)}</Button>
+  </div>
   const usage = usageMap(st)
   const [q, setQ] = useState('')
   // What a swap is away from: the picker opens on what trains the same muscle, if anything you
@@ -1340,7 +1363,7 @@ function ExercisePicker({ onPick, title, close, like }) {
   const similar = q.trim() && qLate === q && !special && f.length <= shown
     ? similarExercises((profile && !showAll ? all.filter(e => exAvailable(st, e)) : all).filter(e => bp === SAME || !bp || e.bp === bp), q, f, f.length ? 12 : 30)
     : []
-  const pickRow = e => <div key={e.id} className="item" {...tappable(() => onPick(e))}>
+  const pickRow = e => <div key={e.id} className={'item' + (multi && isSel(e) ? ' picked' : '')} {...tappable(() => multi ? toggle(e) : onPick(e))}>
         <Thumb ex={e} /><div className="grow"><div className={`tt ${exerciseNameClass(e)}`}>{isFav(st, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</div><div className="ss capitalize">{t(MUSCLE_NAME[e.tg] || e.tg || e.bp)} · {t(e.eq)}</div></div>
         {/* Accent tag = already in a routine/log ("Chosen"); the yellow star by the name = favourite. */}
         {usage[e.id] && <span className="tag acc"><Icon name="starFill" /></span>}
@@ -1349,14 +1372,15 @@ function ExercisePicker({ onPick, title, close, like }) {
             and found the real button. Now it does what it looks like: adds with the default
             config right away. Tapping the row itself still opens the detail/config sheet, for
             when you want to set sets/reps before adding. */}
-        <button className="iconbtn chev" aria-label={t('Add “{0}”', exerciseNameFor(e))} style={{ padding: 8, margin: -8 }}
-          onClick={ev => { ev.stopPropagation(); onPick(e, true) }}><Icon name="plus" /></button>
+        <button className="iconbtn chev" aria-label={t('Add “{0}”', exerciseNameFor(e))} aria-pressed={multi ? isSel(e) : undefined} style={{ padding: 8, margin: -8 }}
+          onClick={ev => { ev.stopPropagation(); pick(e, true) }}><Icon name={multi && isSel(e) ? 'checkCircle' : 'plus'} /></button>
       </div>
   if (byMuscle) return <>
     <div className="row between" style={{ marginBottom: 10 }}><h3>{title || t('Add exercise')}</h3>
       <Button size="sm" variant="ghost" onClick={() => setByMuscle(false)}>{t('All')}</Button>
     </div>
-    <MuscleExplorer onPick={onPick} />
+    <MuscleExplorer onPick={pick} />
+    {multiBar}
   </>
 
   return <>
@@ -1397,7 +1421,7 @@ function ExercisePicker({ onPick, title, close, like }) {
       {eqOpts.map(x => <button key={x} className={'chip' + (eqOn === x ? ' on' : '')} onClick={() => { setEq(x); setShown(50) }}>{t(x)}</button>)}
     </div>}
     <div className={'list' + (st.exerciseView === 'cards' ? ' ex-grid' : '')}>
-      {!special && <div className="item ex-new" {...tappable(() => customExSheet(null, ex => onPick(ex), q.trim()))}>
+      {!special && <div className="item ex-new" {...tappable(() => customExSheet(null, created, q.trim()))}>
         <div className="thumb thumb-x"><Icon name="plusCircle" /></div>
         <div className="grow"><div className="tt">{t('Create your own exercise')}</div><div className="ss">{t('name + body part, and a photo or video if you like')}</div></div><Icon name="plus" className="chev" />
       </div>}
@@ -1408,12 +1432,13 @@ function ExercisePicker({ onPick, title, close, like }) {
       {similar.map(pickRow)}
     </div>
     {f.length > shown && <><div style={{ height: 8 }} /><Button ref={moreRef} onClick={() => setShown(s => s + 50)}>{t('Show more')}</Button></>}
+    {multiBar}
   </>
 }
 // `title` names what the pick is for when it is not an add — the routine editor's Replace (#110).
 // `like` is the exercise a swap or a replace is away from: the picker then opens on the ones that
 // train the same muscle, same equipment first (#473).
-export const exercisePicker = (onPick, { title, like } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} like={like} close={close} />)
+export const exercisePicker = (onPick, { title, like, onPickMany } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} onPickMany={onPickMany} title={title} like={like} close={close} />)
 
 /** Start a safe swap for one exact active-workout occurrence. */
 export function swapActiveWorkoutExercise(index) {
@@ -2783,6 +2808,18 @@ export function startFlow(routineIds) {
   if (S().weighIn === false) { beginWorkout(routineIds, null); return }
   bwSheet({ required: true, onDone: bw => beginWorkout(routineIds, bw) })
 }
+// GymBro: Home's "Choose routine" — every saved routine, one tap to start it, and the way to a new one.
+export function chooseRoutineSheet() {
+  const routines = S().routines || []
+  menuSheet({
+    title: t('Choose routine'),
+    subtitle: routines.length ? null : t('No routines yet. Make one with the exercises you do, and start it from here.'),
+    sections: [
+      { items: routines.map(r => ({ icon: glyphOf(r.emoji), label: r.name, sub: exCount(r.ex.length), onClick: () => startFlow([r.id]) })) },
+      { items: [{ icon: 'plus', label: t('New routine'), chevron: true, onClick: () => nav('/plan') }] },
+    ],
+  })
+}
 export function beginWorkout(routineIds, bw) {
   const st = S()
   const { entries, routineIds: rids, routines } = buildCombinedEntries(st, routineIds)
@@ -3315,7 +3352,46 @@ function CardioDone({ st, w }) {
   </div>
 }
 
-function FinishSummary({ w, prs, e1prs = [], close }) {
+// GymBro: the workout is already in history; this asks about the routine only when it matters.
+// Freestyle offers to keep the exercises as a routine. A routine whose exercises changed (one
+// added, removed, swapped or moved, read off the live session) offers Update / Save as new /
+// Keep. Weights and reps alone never ask: they are the session's, not the template's.
+function RoutineChoice({ w, session }) {
+  const st = useStore(s => s.S)
+  const [{ routine, freestyle }] = useState(() => {
+    const r = session ? sessionRoutine(S(), session) : null
+    const anyRoutine = (session?.entries || []).some(e => entryRoutineId(session, e) != null)
+    return { routine: r && routineStructureChanged(session, r) ? r : null, freestyle: !!session && !anyRoutine }
+  })
+  const [name, setName] = useState('')
+  const [said, setSaid] = useState(null)
+  const act = (fn, msg) => {
+    try { update(fn) } catch (e) { toast(t(e.message === 'no exercises' ? 'Nothing logged yet' : e.message)); return }
+    setSaid(msg)
+  }
+  if (!routine && !freestyle) return null
+  if (said) return <div className="card routine-choice"><div className="small row" style={{ gap: 6 }}><Icon name="checkCircle" />{said}</div></div>
+  if (freestyle) {
+    const nm = name.trim() || t('My routine')
+    return <div className="card routine-choice">
+      <h4>{t('Save as routine?')}</h4>
+      <div className="small dim" style={{ marginBottom: 10 }}>{t('Next time, start these exercises in one tap.')}</div>
+      <input className="input" aria-label={t('Routine name')} placeholder={t('Routine name')} value={name} maxLength={60} onChange={e => setName(e.target.value)} />
+      <div style={{ height: 10 }} />
+      <Button variant="primary" onClick={() => act(s => { saveSessionAsRoutine(s, w, nm) }, t('Saved as “{0}”', nm))}>{t('Save routine')}</Button>
+    </div>
+  }
+  return <div className="card routine-choice">
+    <h4>{t('You changed “{0}”', routine.name)}</h4>
+    <div className="small dim" style={{ marginBottom: 10 }}>{t('Your workout is saved. Should the routine change too?')}</div>
+    <Button variant="primary" onClick={() => act(s => { updateRoutineFromSession(s, session, routine.id) }, t('“{0}” updated', routine.name))}>{t('Update routine')}</Button>
+    <div style={{ height: 8 }} />
+    <Button onClick={() => act(s => { saveSessionAsRoutine(s, w, t('{0} (new)', routine.name)) }, t('Saved as “{0}”', t('{0} (new)', routine.name)))}>{t('Save as new routine')}</Button>
+    <div style={{ height: 8 }} />
+    <Button variant="ghost" onClick={() => setSaid(t('“{0}” is unchanged', routine.name))}>{t('Keep original')}</Button>
+  </div>
+}
+function FinishSummary({ w, prs, e1prs = [], session, close }) {
   const st = useStore(s => s.S)
   return <div style={{ textAlign: 'center', padding: '8px 0' }}>
     <div style={{ fontSize: 44, display: 'flex', justifyContent: 'center', color: 'var(--acc-text)' }}><Icon name="trophy" /></div>
@@ -3333,6 +3409,7 @@ function FinishSummary({ w, prs, e1prs = [], close }) {
     <h4 className="sec" style={{ textAlign: 'start' }}>{t('What you just trained')}</h4>
     <BodyMap load={loadOfWorkouts([w])} body={st.body} />
     <div style={{ height: 14 }} />
+    <RoutineChoice w={w} session={session} />
     <LastAndNext st={st} w={w} />
     <CardioDone st={st} w={w} />
     {/* The moment for a progress photo or the clip of a set: the workout is already saved, so
@@ -3429,7 +3506,7 @@ function doFinishWorkout() {
   // into s.active, which is gone. What it held is not logged, like any set left unchecked.
   useUI.getState().stopWork()
   beep(snd(), 880, 0.15); beep(snd(), 1100, 0.15, 0.18); beep(snd(), 1320, 0.3, 0.36)
-  const summary = () => ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} close={close} />, { kind: 'center', locked: true })
+  const summary = () => ui().openSheet(close => <FinishSummary w={shown} prs={prs} e1prs={e1prs} session={A} close={close} />, { kind: 'center', locked: true })
   const after = S()
   const ups = rankUps(before, progressSnapshot(after), after)
   if (!ups.length) return summary()

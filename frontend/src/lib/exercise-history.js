@@ -132,3 +132,17 @@ export function bestSetFor(S, exId, mode = modeOf({ id: exId }), as) {
   }
   return best && { d: best.d, set: best.set, target: best.target }
 }
+
+/**
+ * GymBro: how far an exercise's estimated 1RM moved, from `exerciseHistory().e1rmPoints` (oldest
+ * first): the first session (`base`), the latest, the best, the change in kg and in percent of
+ * the first. Null below two sessions, where nothing has changed yet.
+ */
+export function e1rmProgress(points) {
+  const ok = (Array.isArray(points) ? points : []).filter(p => Number.isFinite(p?.y) && p.y > 0)
+  if (ok.length < 2) return null
+  const base = ok[0], latest = ok.at(-1)
+  const best = ok.reduce((a, p) => (p.y > a.y ? p : a))
+  const change = latest.y - base.y
+  return { base, latest, best, change, pct: change / base.y * 100 }
+}

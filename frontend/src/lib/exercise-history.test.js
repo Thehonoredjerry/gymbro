@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { exerciseHistory, HISTORY_SESSIONS, bestSetFor } from './exercise-history.js'
+import { exerciseHistory, HISTORY_SESSIONS, bestSetFor, e1rmProgress } from './exercise-history.js'
 import { EXDB } from './exercises-data.js'
 import { estimate1RM, e1rmSeries } from './onerm.js'
 import { lastEntryFor } from './history.js'
@@ -226,5 +226,29 @@ describe('bestSetFor', () => {
     expect(bestSetFor(S, id, 'reps').set).toMatchObject({ w: 20, r: 8 })
     expect(bestSetFor({ workouts: [] }, 'bench', 'reps')).toBeNull()
     expect(bestSetFor({}, 'bench')).toBeNull()
+  })
+})
+
+// GymBro: the exercise page says how far the estimated 1RM moved since the first session.
+describe('e1rmProgress', () => {
+  const p = (d, y) => ({ d, t: Date.parse(d), y })
+  it('reads first, latest and best, and the change between first and latest', () => {
+    const r = e1rmProgress([p('2026-01-01', 80), p('2026-02-01', 100), p('2026-03-01', 96)])
+    expect(r.base.y).toBe(80)
+    expect(r.latest.y).toBe(96)
+    expect(r.best.y).toBe(100)
+    expect(r.change).toBe(16)
+    expect(r.pct).toBeCloseTo(20)
+  })
+  it('reports a drop as a drop', () => {
+    const r = e1rmProgress([p('2026-01-01', 100), p('2026-02-01', 90)])
+    expect(r.change).toBe(-10)
+    expect(r.pct).toBeCloseTo(-10)
+  })
+  it('says nothing from one session, or from values that are not estimates', () => {
+    expect(e1rmProgress([p('2026-01-01', 80)])).toBeNull()
+    expect(e1rmProgress([p('2026-01-01', 0), p('2026-02-01', 90)])).toBeNull()
+    expect(e1rmProgress([])).toBeNull()
+    expect(e1rmProgress(undefined)).toBeNull()
   })
 })

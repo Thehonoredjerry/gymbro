@@ -5,7 +5,7 @@ import { useUI } from '../store/useUI.js'
 import { exOr } from '../lib/exercises.js'
 import { activeProfile, exAvailable } from '../lib/equipment.js'
 import { uid, exerciseNameText } from '../lib/format.js'
-import { t, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
+import { t, tn, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
 import { supersetUnits, moveRoutineEntry, cleanupSg, exLine, defaultConfig } from '../lib/history.js'
 import { Thumb } from '../components/Media.jsx'
 import { glyphPicker, exercisePicker, exConfigSheet, confirmSheet, supersetSheet } from '../sheets.jsx'
@@ -443,7 +443,10 @@ export default function RoutineEdit() {
     } else {
       exConfigSheet(ex, null, cfg => edit(x => { x.push({ id: ex.id, ...cfg }) }), null, r)
     }
-  })
+  }, { onPickMany: list => {
+    edit(x => { list.forEach(ex => x.push({ id: ex.id, ...defaultConfig(ex.id) })) })
+    toast(tn('{0} exercise added', '{0} exercises added', list.length))
+  } })
 
   const units = supersetUnits(r.ex)
   const unitFirst = new Set(units.filter(u => u.length > 1).map(u => u[0]))

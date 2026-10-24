@@ -141,3 +141,44 @@ export function saveSessionAsRoutine(state, session, name) {
   state.routines.push(routine)
   return routine.id
 }
+
+// GymBro's finish flow (sheets.jsx FinishSummary). The workout goes to history either way; these
+// decide whether to ask about the routine behind it, and change it only when the user says so.
+
+/** The routine a session was started from, when it was exactly one that still exists. */
+export function sessionRoutine(state, session) {
+  const ids = new Set(sessionEntries(session).map(e => entryRoutineId(session, e)).filter(id => id != null))
+  if (ids.size !== 1) return null
+  const [id] = ids
+  return (Array.isArray(state?.routines) ? state.routines : []).find(r => r.id === id) || null
+}
+
+const routineEntries = (session, routineId) => sessionEntries(session).filter(e => entryRoutineId(session, e) === routineId)
+
+/**
+ * Whether the session's exercises differ from the routine's: one added, removed, swapped or
+ * moved. Weights, reps and sets done never count; they belong to the session, not the template.
+ * Read it off the live session (s.active), which still holds the exercises left undone.
+ */
+export function routineStructureChanged(session, routine) {
+  const mine = routineEntries(session, routine.id).map(e => e.id)
+  const theirs = (routine.ex || []).map(x => x.id)
+  return mine.length !== theirs.length || mine.some((id, i) => id !== theirs[i])
+}
+
+/** The routine re-made in the session's order: what it already had keeps its own setup. */
+export function updateRoutineFromSession(state, session, routineId) {
+  const routine = state.routines.find(r => r.id === routineId)
+  if (!routine) throw new Error('routine not found')
+  const pool = [...routine.ex]
+  const ex = routineEntries(session, routineId).map(entry => {
+    const i = pool.findIndex(x => x && x.id === entry.id)
+    if (i < 0) return copiedEntry(entry, routine)
+    const kept = pool[i]
+    pool[i] = null
+    return kept
+  })
+  if (!ex.length) throw new Error('no exercises')
+  routine.ex = groupIds(ex)
+  return routine.id
+}

@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore.js'
 import { effectiveRoutines, effectiveRoutineIds, nextTrainingDay, streakWeeks, lastBW, setsDoneActive } from '../lib/history.js'
 import { fmtNum, fmtDate, todayISO, isoOf, weekStartOf, weekDayOffset, DAYS, DAYN } from '../lib/format.js'
 import { t, tn, dateLocale } from '../lib/i18n.js'
-import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, starterPlanSheet, bwDeltaColor, weighInsSheet } from '../sheets.jsx'
+import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, starterPlanSheet, bwDeltaColor, weighInsSheet, chooseRoutineSheet } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
 import QueueRow from '../components/QueueRow.jsx'
@@ -106,6 +106,12 @@ export default function Home() {
       <div><h1>{user ? t('Hi {0}', user.name) : 'GymBro'}</h1><div className="sub">{today.toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}><Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
     </div>
+
+    {/* GymBro: the two ways to train lead the page. A running session takes their place below. */}
+    {!S.active && <div className="quick-start">
+      <Button variant="primary" icon="plus" onClick={() => startFlow([])}>{t('Empty workout')}</Button>
+      <Button variant="tinted" icon="clipboard" onClick={() => chooseRoutineSheet()}>{t('Choose routine')}</Button>
+    </div>}
 
     <div className="card">
       {/* A coach week runs by order, not by weekday, so its progress row stands in for the

@@ -1367,7 +1367,7 @@ function ActiveWorkout() {
     workoutCompleteSheet()
   }
   // Adds an exercise after the current unit: the button under the session and the ⋯ menu's Add.
-  const addExercise = () => exercisePicker((ex, quick) => {
+  const addOne = (ex, quick, quiet) => {
     // A freehand add inherits the current unit's routine (its `rid`) so it lands in that
     // routine's block in a combined session and gets a real prescription; a routine-less
     // freestyle session has no `rid` to inherit. It inherits the block's `noProg` too: an
@@ -1411,10 +1411,15 @@ function ActiveWorkout() {
     // button. Quick-add commits with the same default (or, freestyle, last-session) config
     // the sheet would have opened with; tapping the row still opens that sheet for anyone
     // who wants to set sets/reps first.
-    if (quick) { commit(seed || defaultConfig(ex.id)); useUI.getState().toast(t('“{0}” added to {1}', exerciseNameText(ex), routine ? routine.name : t('Freestyle'))) }
+    if (quick) { commit(seed || defaultConfig(ex.id)); if (!quiet) useUI.getState().toast(t('“{0}” added to {1}', exerciseNameText(ex), routine ? routine.name : t('Freestyle'))) }
     // The confirm names what it changes: this workout, never the routine behind it.
     else exConfigSheet(ex, null, commit, null, routine, seed, null, t('Add to this workout'))
-  })
+  }
+  // GymBro: several ticked at once land in the order they were ticked, each after the one before.
+  const addExercise = () => exercisePicker(addOne, { onPickMany: list => {
+    list.forEach(ex => addOne(ex, true, true))
+    useUI.getState().toast(tn('{0} exercise added', '{0} exercises added', list.length))
+  } })
   // Ending the session without saving it. The ⋯ menu's last item since the header's ✕ became the
   // ⌄ that only leaves the screen (v1.3.11).
   const discardWorkout = () => confirmSheet({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { routineFromSession, saveSessionAsRoutine } from './session-routines.js'
+import { routineFromSession, saveSessionAsRoutine, sessionRoutine, routineStructureChanged, updateRoutineFromSession } from './session-routines.js'
 import { buildCompletedWorkout } from './finish-workout.js'
 import { buildSessionEntries } from './session-start.js'
 import { makeSideSet, setSideField, toggleSide, isWarmupRow } from './workout-model.js'
@@ -214,5 +214,46 @@ describe('a routine saved from a planned session', () => {
     const st = stateOf([source])
     const saved = train(st, source, { r: 9 })
     expect(routineFromSession(saved, 'Copy', []).ex[0]).not.toHaveProperty('prog')
+  })
+})
+
+// GymBro finish flow: history is saved anyway; the routine changes only when you say so, and the
+// question comes up only when the exercises themselves changed, never for weights or reps.
+describe('routine structure after a session', () => {
+  const routine = () => ({ id: 'r1', name: 'Push', prog: 'off', ex: [
+    { id: 'bench', sets: 3, reps: 8, weight: 60 },
+    { id: 'ohp', sets: 3, reps: 10, weight: 30 },
+    { id: 'dips', sets: 3, reps: 12, weight: 0 },
+  ] })
+  const live = ids => ({ id: 'a1', routineIds: ['r1'], entries: ids.map(id => ({ id, rid: 'r1', target: { sets: 3, reps: 5 }, sets: [row({ w: 99, r: 5 })] })) })
+  const state = () => ({ routines: [routine()] })
+
+  it('finds the one routine a session came from, and none for freestyle or a combined day', () => {
+    expect(sessionRoutine(state(), live(['bench']))?.id).toBe('r1')
+    expect(sessionRoutine(state(), { entries: [{ id: 'bench', sets: [] }] })).toBeNull()
+    expect(sessionRoutine(state(), { entries: [{ id: 'a', rid: 'r1', sets: [] }, { id: 'b', rid: 'r2', sets: [] }] })).toBeNull()
+    expect(sessionRoutine(state(), { entries: [{ id: 'a', rid: 'gone', sets: [] }] })).toBeNull()
+  })
+
+  it('does not count different weights, reps or sets as a change', () => {
+    expect(routineStructureChanged(live(['bench', 'ohp', 'dips']), routine())).toBe(false)
+  })
+
+  it('counts an added, removed, swapped or moved exercise', () => {
+    expect(routineStructureChanged(live(['bench', 'ohp', 'dips', 'flyes']), routine())).toBe(true)
+    expect(routineStructureChanged(live(['bench', 'dips']), routine())).toBe(true)
+    expect(routineStructureChanged(live(['bench', 'arnold', 'dips']), routine())).toBe(true)
+    expect(routineStructureChanged(live(['ohp', 'bench', 'dips']), routine())).toBe(true)
+  })
+
+  it('updates the routine to the session order, keeping the routine’s own numbers for what it had', () => {
+    const s = state()
+    updateRoutineFromSession(s, live(['ohp', 'bench', 'flyes']), 'r1')
+    const ex = s.routines[0].ex
+    expect(ex.map(x => x.id)).toEqual(['ohp', 'bench', 'flyes'])
+    expect(ex[0]).toMatchObject({ sets: 3, reps: 10, weight: 30 })
+    expect(ex[1]).toMatchObject({ sets: 3, reps: 8, weight: 60 })
+    expect(ex[2].id).toBe('flyes')
+    expect(ex[2].rid).toBeUndefined()
   })
 })
