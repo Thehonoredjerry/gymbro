@@ -245,12 +245,12 @@ into both native projects — re-run it after every web-code change before build
 
 ## App icons & splash screens
 
-`frontend/resources/icon.svg` is the 1024×1024 source (the mango dumbbell on the
+`frontend/resources/icon.svg` is the 1024×1024 source (the white dumbbell on the
 app background). Generate all platform assets from it on a machine with the tooling:
 
 ```sh
 cd frontend
-npx @capacitor/assets generate --iconBackgroundColor '#15122a' --splashBackgroundColor '#15122a'
+npx @capacitor/assets generate --iconBackgroundColor '#000000' --splashBackgroundColor '#000000'
 ```
 
 (If the generator won't take the SVG directly, export it to `resources/icon.png` at

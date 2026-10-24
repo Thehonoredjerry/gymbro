@@ -2,7 +2,7 @@
   "appId": "com.gymbro.app",
   "appName": "GymBro",
   "webDir": "dist",
-  "backgroundColor": "#15122a",
+  "backgroundColor": "#000000",
   "android": {
     "allowMixedContent": true
   }

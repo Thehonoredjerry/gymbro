@@ -12,11 +12,13 @@
     var l = s.lang || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
     document.documentElement.lang = l;
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+    // GymBro: paint black from the first frame (lib/accent.js paletteKey) instead of flashing dusk.
+    if (s.palette !== 'dusk') document.documentElement.dataset.palette = 'black';
   } catch (e) {}
 </script>
 <title>GymBro</title>
 <meta name="description" content="Personal gym & body weight tracker">
-<meta name="theme-color" content="#15122a">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

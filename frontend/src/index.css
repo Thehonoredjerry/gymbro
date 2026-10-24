@@ -122,6 +122,8 @@
 /* accents — mango is the default; the rest are the platform colours */
 :root[data-accent="mono"]  { --acc:#f5f5f5; --acc-2:#d4d4d4; --on-acc:#0a0a0a }
 :root[data-theme="light"][data-accent="mono"]{ --acc:#111111; --acc-2:#000000; --on-acc:#ffffff; --acc-text:#111111 }
+/* Black & white means the row icon tiles too, not only the buttons (!important: Home sets the tile inline). */
+:root[data-accent="mono"] .lrow-i{ background:var(--surface-3) !important; color:var(--label) }
 :root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
 :root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
 :root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#b06a00; --on-acc:#1f1a33 }

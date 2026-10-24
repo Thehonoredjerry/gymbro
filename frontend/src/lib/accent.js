@@ -215,9 +215,9 @@ export function applyAccent(el, value, theme) {
   for (const k of CUSTOM_VARS) el.style.removeProperty(k)
 }
 
-// GymBro: the background can be the dusk indigo (default) or black — black and greys in dark
+// GymBro: the background is black (default) or the dusk indigo — black and greys in dark
 // mode, white and greys in light. It rides on <html data-palette>; index.css has the colours.
-export const paletteKey = S => (S?.palette === 'black' ? 'black' : 'dusk')
+export const paletteKey = S => (S?.palette === 'dusk' ? 'dusk' : 'black')
 export function applyPalette(el, palette) {
   if (palette === 'black') el.dataset.palette = 'black'
   else delete el.dataset.palette
