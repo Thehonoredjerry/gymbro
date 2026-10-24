@@ -14,7 +14,6 @@ import { guestAllowed } from '../lib/guest.js'
 import { askAddDeviceData } from '../sheets.jsx'
 import { passwordError, MIN_PASSWORD } from '../components/PasswordAuth.jsx'
 import { openDeviceLinkRedeem } from '../components/Passkeys.jsx'
-import Icon from '../components/Icon.jsx'
 import { Button, Segmented } from '../components/ui.jsx'
 
 const store = () => useStore.getState()
@@ -25,7 +24,7 @@ const lbl = { display: 'block', marginBottom: 6 }
 const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh' }
 
 const Head = () => <div style={{ textAlign: 'center', marginBottom: 22 }}>
-  <div style={{ fontSize: 54, display: 'flex', justifyContent: 'center', color: 'var(--acc-text)' }}><Icon name="dumbbell" /></div>
+  <img className="brand-logo" src="logo.png" alt="" width="150" height="140" />
   <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-.028em', margin: '10px 0 0' }}>GymBro</h1>
 </div>
 

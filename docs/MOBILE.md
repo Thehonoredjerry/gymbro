@@ -245,7 +245,7 @@ into both native projects — re-run it after every web-code change before build
 
 ## App icons & splash screens
 
-`frontend/resources/icon.svg` is the 1024×1024 source (the white dumbbell on the
+`frontend/resources/icon.png` is the 1024×1024 source (the GymBro logo, white on the
 app background). Generate all platform assets from it on a machine with the tooling:
 
 ```sh
